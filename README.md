@@ -12,7 +12,7 @@
 	Stage:
 
 		Core:
-			1. Get Packet From Interface 				[Yes]
+			1. Get Packets From Interface 				[Yes]
 			2. Packet Filtering							[Yes]
 			3. Connect to DataBase						[Yes]
 			4. Mutithread Control 						[NO]
@@ -20,17 +20,18 @@
 		Detection Functions:
 			1. ARP Frame Checking 						[Yes]
 			2. ARP frequency 							[NO]
-			3. ICMP Fram Checking						[NO]
+			3. ICMP Frame Checking						[NO]
 			...Still need to add...
 		
 		GUI											
 			1. Design									[NO]
 			2. Mergo with core							[NO]
 			Track:
-				Draw graph								[NO]
+				a. Draw graph							[NO]
+				b. Mergo with GUI						[NO]
 			...Still need to add...
 			
 	------------------------------------------------------------------------
 	Newest Version:
 			Files:
-				l2dsv1.py
+				l2ds_v1.py
