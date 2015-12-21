@@ -28,6 +28,8 @@
 			2. Mergo with core							[NO]
 			Track:
 				a. Draw graph							[NO]
+					a1. line graph						[YES]
+					a2. bar graph						[NO]
 				b. Mergo with GUI						[NO]
 			...Still need to add...
 			
