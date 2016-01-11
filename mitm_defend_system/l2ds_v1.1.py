@@ -1,14 +1,15 @@
 __author__ = 'TKS'
 
 from scapy.all import *
-import MySQLdb
 import numpy as np
 from threading import Thread
-import livegraph
+import databasefyp
+
 
 packets = []
 gateway = []
 arpcountperip = np.empty((24, 2), dtype=object)
+
 arpcount = 0
 totalarp = 0
 icmpcount = 0
@@ -130,27 +131,6 @@ def sniffing():
         print "->>Total Network Traffic : %6d" %count
         time += 1
 
-
-def getgateway():
-    global gateway
-
-    try:
-        db = MySQLdb.connect(host="localhost", user="root", passwd="", db="fyp")
-        cursor = db.cursor()
-
-        cursor.execute("select * from defaultgatewaytable")
-        result = cursor.fetchall()
-
-        for i in result:
-            gateway.append([i[0], i[1]])
-
-        db.close()
-        return gateway
-
-    except MySQLdb.Error as e:
-        print("Error %d: %s" % (e.args[0], e.args[1]))
-
-
 def spsniffing(): # stop or pause sniffing
     while True:
         spinput = raw_input("Stop(Press S) or Pause(Press) \n")
@@ -163,7 +143,8 @@ def spsniffing(): # stop or pause sniffing
 def main():
     # thd0 -> thread of sniffing
     # thd1 -> check input of stopping sniffing
-    getgateway()
+    global gateway
+    gateway = databasefyp.getgateway()
 
     thd0 = Thread(target=sniffing)
     thd1 = Thread(target=spsniffing)

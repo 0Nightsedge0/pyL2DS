@@ -1,38 +1,32 @@
 __author__ = 'TKS'
 
+'''external modules''' '''by build-in or download'''
 from scapy.all import *
-import MySQLdb
 import numpy as np
 from threading import Thread
-import livegraph
+import platform
+'''internal modules'''
+import databasefyp
+import detection
 
-packets = []
-gateway = []
-arpcountperip = np.empty((24, 2), dtype=object)
+packets = [] #store pkts
+gateway = [] #store gateway
+arpcountperip = np.empty((24, 2), dtype=object) #store all port of host
+
+'''store count per s for arp, icmp, dhcp '''
 arpcount = 0
-totalarp = 0
 icmpcount = 0
-totalicmp = 0
 dhcpcount = 0
+
+'''store total count of arp, icmp, dhcp and store the count of network traffic  '''
+totalarp = 0
+totalicmp = 0
 totaldhcp = 0
 count = 0
 
 
-def arp_detection(pkt, dmac, smac, dstip, hwsrc, srcip, hwdst):
-    global gateway
-
-    for i in gateway:
-        #print i[0], i[1]
-        if(srcip == i[0] and hwsrc != i[1]):
-            print "alert ip: %s" %srcip
-        elif(srcip == i[0] and hwsrc == i[1]):
-            print "ok"
-        else:
-            print "bye"
-
-
 def get_packet_type(pkt):
-    global count, y
+    global count, gateway
     global arpcount, dhcpcount, icmpcount
     # tcheck use for new thread -> detection
 
@@ -47,7 +41,6 @@ def get_packet_type(pkt):
     print "------------------"
 
     if(ARP in pkt[0]):
-
         dstip = pkt[0][1].pdst
         srcip = pkt[0][1].psrc
         hwsrc = pkt[0][1].hwsrc
@@ -66,9 +59,9 @@ def get_packet_type(pkt):
         print "| SRC HW MAC : %20s" %hwsrc
 
 
-        tcheck = Thread(target=arp_detection, args=(pkt, dmac, smac, dstip, hwsrc, srcip, hwdst))
+        tcheck = Thread(target=detection.arp_detection,
+                        args=(pkt, dmac, smac, dstip, hwsrc, srcip, hwdst, gateway))
         tcheck.start()
-        #arp_detection(pkt, dmac, smac, dstip, hwsrc, srcip, hwdst)
         arpcount += 1
 
     if(IP in pkt[0]):
@@ -105,14 +98,14 @@ def displaycounting(pname, countpers, total):
 def sniffing():
     time = 0
     while True:
-        # reset arpcount
+        # reset arpcount,icmpcount per second
         global totalarp, totalicmp, totaldhcp
 
         global arpcount, icmpcount, dhcpcount
         arpcount = icmpcount = 0
 
-        #sniff(iface="eth0", prn=get_packet_type, count=0, timeout=1)
-        sniff(iface="wlan0", prn = get_packet_type,count= 0,timeout = 1)
+        sniff(iface="eth0", prn=get_packet_type, count=0, timeout=1)
+        #sniff(iface="wlan0", prn = get_packet_type,count= 0,timeout = 1)
 
         totalarp += arpcount
         totalicmp += icmpcount
@@ -131,45 +124,18 @@ def sniffing():
         time += 1
 
 
-def getgateway():
-    global gateway
-
-    try:
-        db = MySQLdb.connect(host="localhost", user="root", passwd="", db="fyp")
-        cursor = db.cursor()
-
-        cursor.execute("select * from defaultgatewaytable")
-        result = cursor.fetchall()
-
-        for i in result:
-            gateway.append([i[0], i[1]])
-
-        db.close()
-        return gateway
-
-    except MySQLdb.Error as e:
-        print("Error %d: %s" % (e.args[0], e.args[1]))
-
-
-def spsniffing(): # stop or pause sniffing
-    while True:
-        spinput = raw_input("Stop(Press S) or Pause(Press) \n")
-        if(spinput.upper() == 'S'):
-            print "STOP!!"
-        elif(spinput.upper() == 'P'):
-            print "PAUSE!!"
-
-
 def main():
     # thd0 -> thread of sniffing
     # thd1 -> check input of stopping sniffing
-    getgateway()
+    # get information from database and collect system info
+    global gateway
+    gateway = databasefyp.getgateway()
+    print 'Current OS: ', platform.platform()
 
+    lock = thread.allocate_lock()
     thd0 = Thread(target=sniffing)
-    thd1 = Thread(target=spsniffing)
-    thd1.daemon = True
-
     thd0.start()
-    thd1.start()
 
-main()
+
+if( '__main__' == __name__):
+    main()
