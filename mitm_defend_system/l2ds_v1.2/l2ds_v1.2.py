@@ -121,7 +121,17 @@ def sniffing():
         #print "total ndp packets: "
 
         print "->>Total Network Traffic : %6d" %count
+        thdreturn = Thread(target=getresult, args=(arpcount, totalarp, icmpcount, totalicmp, dhcpcount, totaldhcp, count))
+        thdreturn.start()
         time += 1
+
+
+def getresult(arpcount, totalarp, icmpcount, totalicmp, dhcpcount, totaldhcp, count):
+    print arpcount, totalarp, icmpcount, totalicmp, dhcpcount, totaldhcp, count
+    result = (arpcount, totalarp, icmpcount, totalicmp, dhcpcount, totaldhcp, count)
+    #result = buffer(result)
+    print result
+    return result
 
 
 def main():
