@@ -120,18 +120,34 @@ def sniffing():
         #print "number of ndp packets per second: | ",
         #print "total ndp packets: "
 
-        print "->>Total Network Traffic : %6d" %count
+        print "->>Total Checked Network Traffic : %6d" %count
         thdreturn = Thread(target=getresult, args=(arpcount, totalarp, icmpcount, totalicmp, dhcpcount, totaldhcp, count))
         thdreturn.start()
         time += 1
 
 
 def getresult(arpcount, totalarp, icmpcount, totalicmp, dhcpcount, totaldhcp, count):
-    print arpcount, totalarp, icmpcount, totalicmp, dhcpcount, totaldhcp, count
-    result = (arpcount, totalarp, icmpcount, totalicmp, dhcpcount, totaldhcp, count)
-    #result = buffer(result)
-    print result
-    return result
+    #print arpcount, totalarp, icmpcount, totalicmp, dhcpcount, totaldhcp, count
+    result = [arpcount, totalarp, icmpcount, totalicmp, dhcpcount, totaldhcp, count]
+
+    #print result
+    #return result
+    str1 = ','.join(str(i) for i in result)
+    str1 += '\n'
+    #print str1
+    lines = sum(1 for line in open('data.dump'))
+    print(lines)
+    if(lines > 100):
+        dump = open('data.dump', 'r')
+        dump.seek(-lines, 2)
+        last = dump.readlines()[-1].decode()
+        #print last
+        dump = open('data.dump', 'w')
+        dump.write(last)
+        dump.close()
+    dump = open('data.dump', 'a')
+    dump.write(str1)
+    dump.close()
 
 
 def main():
@@ -142,7 +158,7 @@ def main():
     gateway = databasefyp.getgateway()
     print 'Current OS: ', platform.platform()
 
-    lock = thread.allocate_lock()
+    #lock = thread.allocate_lock()
     thd0 = Thread(target=sniffing)
     thd0.start()
 
