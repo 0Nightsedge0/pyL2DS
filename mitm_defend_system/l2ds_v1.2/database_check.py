@@ -3,7 +3,6 @@ import MySQLdb
 import os
 import sys
 
-
 def getgateway():
     gateway = []
     try:
