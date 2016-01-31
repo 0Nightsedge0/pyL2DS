@@ -1,6 +1,5 @@
 __author__ = 'TKS'
 
-
 def arp_detection(pkt, dmac, smac, dstip, hwsrc, srcip, hwdst, gateway):
 
     for i in gateway:
