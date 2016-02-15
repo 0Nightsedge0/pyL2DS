@@ -35,39 +35,45 @@ def optimer(operation_times):
         return "%d day:%02d:%02d:%02d" % (d, h, m, s)
 
 
-def Displayer(q, q2):
+def Displayer(q, q2, q3):
     while True:
         try:
             task = q.get(block=False)
             #print "Getter get", task
-            if task == 's':
-                break
-            else:
-                timer = optimer(task[9])
-                print "-------------------Now data and time : %s --------------------" % (task[10])
-                print "-------------------------Operation times : %s----------------------------" % (timer)
-                displaycounting('ARP', task[0], task[1])
-                displaycounting('ICMP', task[2], task[3])
-                displaycounting('DHCP', task[4], task[5])
-                displaycounting('DNS', task[6], task[7])
-                print "---->> Network Traffic : %6d \n" % task[8]
+            timer = optimer(task[9])
+            print "-------------------Now data and time : %s --------------------" % (task[10])
+            print "-------------------------Operation times : %s----------------------------" % (timer)
+            displaycounting('ARP', task[0], task[1])
+            displaycounting('ICMP', task[2], task[3])
+            displaycounting('DHCP', task[4], task[5])
+            displaycounting('DNS', task[6], task[7])
+            print "---->> Network Traffic : %6d \n" % task[8]
             if(q2.qsize() > 0):
                 for i in range(q2.qsize()):
-                    print "%04d" % i
+                    print "Warning No : %04d" % i
                     alert = q2.get(block=False)
                     print alert
+        except:
+            pass
+
+        try:
+            signal = q3.get(block=False)
+            if(signal == 's'):
+                break
         except:
             pass
     #print "getter finish"
 
 
-def stop(q, fn):
+def stop(q, fn, l3):
     sys.stdin = os.fdopen(fn)
     op = raw_input("****You can press (s) to stop****\n")
     if op == 's':
+        l3.acquire()
         q.put(op)
         q.put(op)
-        print 'stopper get signal to stop'
+        l3.release()
+        print 'Warning : Stopper get signal'
 
 
 def cinterface():
@@ -93,15 +99,20 @@ def process_con():
 
     manager = Manager()
     manager2 = Manager()
+    manager3 = Manager()
+
     q = manager.Queue()
     q2 = manager2.Queue()
+    q3 = manager3.Queue()
+
     l = manager.Lock()
     l2 = manager2.Lock()
+    l3 = manager3.Lock()
     fn = sys.stdin.fileno()
 
-    ps0 = Process(target=L2PS_v1a4.main, args=(q, l, iface, q2, l2))
-    ps1 = Process(target=Displayer, args=(q, q2))
-    ps2 = Process(target=stop, args=(q, fn))
+    ps0 = Process(target=L2PS_v1a4.main, args=(q, l, iface, q2, l2, q3))
+    ps1 = Process(target=Displayer, args=(q, q2, q3))
+    ps2 = Process(target=stop, args=(q3, fn, l3))
 
     ps2.start()
     time.sleep(0.5)
