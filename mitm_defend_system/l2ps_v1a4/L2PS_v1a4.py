@@ -120,7 +120,7 @@ def get_packet_type(pkt):
         #print "###############################################################################\n"
 
 
-def sniffing(q, lock, iface, q2, lock2):
+def sniffing(q, lock, iface, q2, lock2, q3):
     operation_times = 0
 
     signal = False      #control signal
@@ -143,6 +143,12 @@ def sniffing(q, lock, iface, q2, lock2):
         totaldns += dnscount
         count += countpers
 
+        signal = getresult(arpcount, totalarp, icmpcount, totalicmp, dhcpcount,
+                            totaldhcp, dnscount, totaldns, count, operation_times, printdatetime, q, lock, q3)
+
+        if signal is True:
+            break
+
         if packets:
             ps_log = Process(target=Database_get2insert.insert_Log, args=(packets, ))
             ps_detector = Process(target=Detection.detector, args=(oripackets, q2, lock2, gateway, datetime, printdatetime))
@@ -151,31 +157,26 @@ def sniffing(q, lock, iface, q2, lock2):
             packets = []
             oripackets = []
 
-        signal = getresult(arpcount, totalarp, icmpcount, totalicmp, dhcpcount,
-                            totaldhcp, dnscount, totaldns, count, operation_times, printdatetime, q, lock)
-
-        if signal is True:
-            break
-
         #print datetime+"%04d" % (countpers)
         #print "count = ", count
         operation_times += 1
 
 
-def getresult(arpcount, totalarp, icmpcount, totalicmp, dhcpcount, totaldhcp, dnscount, totaldns, count, times, printdatetime, q, lock):
+def getresult(arpcount, totalarp, icmpcount, totalicmp, dhcpcount, totaldhcp, dnscount, totaldns, count, times, printdatetime, q, lock, q3):
     #print arpcount, totalarp, icmpcount, totalicmp, dhcpcount, totaldhcp, count
     result = [arpcount, totalarp, icmpcount, totalicmp, dhcpcount, totaldhcp, dnscount, totaldns, count, times, printdatetime]
     #print "queue size: ", q.qsize()
     lock.acquire()
-    if(q.qsize() == 2):
-        #print q.get(block=False)
-        #print "Putter OUT!"
-        return True
     #print "Putter put ", result
     q.put(result)
-
     lock.release()
-    return False
+
+    try:
+        signal = q3.get(block=False)
+        if signal == 's':
+            return True
+    except:
+        return False
 
 
 def getnowdatetime():
@@ -199,7 +200,7 @@ def get_my_ipaddress(iface):
     return ip
 
 
-def main(q, l, iface, q2, l2):
+def main(q, l, iface, q2, l2, q3):
     # get information from database and collect system info
     print "Collecting information ..."
     time.sleep(0.5)
@@ -210,5 +211,5 @@ def main(q, l, iface, q2, l2):
     print 'Current MAC address: ', get_my_macaddress()
     print "Starting L2PS ..."
     time.sleep(0.5)
-    sniffing(q, l, iface, q2, l2)
+    sniffing(q, l, iface, q2, l2, q3)
 
