@@ -11,6 +11,7 @@ def arp_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gatew
     #print "gateway: ", gateway
     for g in gateway:
         if(srcip == g[1] and hwsrc != g[2]):
+            lock.acquire()
             alert = "Alert IP: %s" % srcip
             alert += " Source MAC: %s" % hwsrc
             alert += " Real MAC address: %s" % g[2]
@@ -19,18 +20,22 @@ def arp_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gatew
                 alert += "Who-has (request) %s? Tell %s" % (dstip, srcip)
             else:
                 alert += "%s is-at (response) %s Tell %s" % (srcip, hwsrc, dstip)
-        elif(srcip != g[1] and hwsrc == g[2]):
-            alert = "Is IP of Device (MAC address: %s ) changed?" % hwsrc
-            alert += "Past IP: %s  Now IP: %s" % (g[1], srcip)
-        elif(srcip != g[1] and hwsrc != g[2]):
-            alert = "Found New Device! IP: %s  MAC address: %s" % (srcip, hwsrc)
-        lock.acquire()
-        q2.put(alert)
-        lock.release()
-        temp = [datetime+"%04d" % num, printdatetime, srcip,
+            q2.put(alert)
+            lock.release()
+
+            temp = [datetime+"%04d" % num, printdatetime, srcip,
                         dstip, l2_src_mac, l2_dst_mac, 'ARP', alert]
-        #print temp
-        Database_get2insert.insert_Report(temp)
+            print temp
+            Database_get2insert.insert_Report(temp)
+            print "Database 11111111111111111111111111111111111111111111111111111"
+
+
+        '''
+        elif(srcip == g[1] and hwsrc == g[2]):
+            print "Ok,This is safe!"
+        else:
+            print "Out of Service!"
+        '''
 
 
 def dhcp_detection():

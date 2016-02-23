@@ -6,6 +6,7 @@ import Config
 import ciscoconnect
 '''external modules''' '''build-in or download'''
 from multiprocessing import Process, Queue, Lock, Pool, Manager
+import multiprocessing
 import sys
 import os
 import time
@@ -121,7 +122,6 @@ def process_con():
     ps0.join()
     ps1.join()
     ps2.join()
-
 
 def clearscr():
     print "\n" * 50

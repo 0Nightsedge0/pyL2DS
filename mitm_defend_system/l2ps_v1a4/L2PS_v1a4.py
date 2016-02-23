@@ -6,7 +6,6 @@ import numpy as np
 import platform
 import time
 from multiprocessing import Process
-from threading import Thread
 '''internal modules'''
 import Database_get2insert
 import Detection
@@ -136,7 +135,7 @@ def sniffing(q, lock, iface, q2, lock2, q3):
 
         getnowdatetime()
 
-        sniff(iface=iface, prn=get_packet_type, count=0, timeout=1, store=0)
+        sniff(iface=iface, prn=get_packet_type, count=0, timeout=1)
 
         totalarp += arpcount
         totalicmp += icmpcount
@@ -151,16 +150,10 @@ def sniffing(q, lock, iface, q2, lock2, q3):
             break
 
         if packets:
-            thd_log = Thread(target=Database_get2insert.insert_Log, args=(packets, ))
-            thd_detector = Thread(target=Detection.detector, args=(oripackets, q2, lock2, gateway, datetime, printdatetime))
-            thd_log.start()
-            thd_detector.start()
-            '''
             ps_log = Process(target=Database_get2insert.insert_Log, args=(packets, ))
             ps_detector = Process(target=Detection.detector, args=(oripackets, q2, lock2, gateway, datetime, printdatetime))
             ps_log.start()
             ps_detector.start()
-            '''
             packets = []
             oripackets = []
 
@@ -177,6 +170,7 @@ def getresult(arpcount, totalarp, icmpcount, totalicmp, dhcpcount, totaldhcp, dn
     #print "Putter put ", result
     q.put(result)
     lock.release()
+
     try:
         signal = q3.get(block=False)
         if signal == 's':
