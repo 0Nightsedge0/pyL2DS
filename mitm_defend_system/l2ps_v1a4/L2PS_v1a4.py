@@ -6,6 +6,7 @@ import numpy as np
 import platform
 import time
 from multiprocessing import Process
+from threading import Thread
 '''internal modules'''
 import Database_get2insert
 import Detection
@@ -103,9 +104,12 @@ def get_packet_type(pkt):
                 #print "->-> ICMP Packet"
                 proto_type = "ICMP"
                 icmpcount += 1
-
             #print "DST IP : %16s" % pkt[0][1].dst
             #print "SRC IP : %16s" % pkt[0][1].src
+
+        if proto_type == "":
+            proto_type = 'Unknown'
+
         temp = [datetime+"%04d" % countpers, printdatetime, srcip,
                     dstip, smac, dmac, proto_type, pktdata]
 
@@ -135,7 +139,7 @@ def sniffing(q, lock, iface, q2, lock2, q3):
 
         getnowdatetime()
 
-        sniff(iface=iface, prn=get_packet_type, count=0, timeout=1)
+        sniff(iface=iface, prn=get_packet_type, count=0, timeout=1, store=0)
 
         totalarp += arpcount
         totalicmp += icmpcount
@@ -150,10 +154,16 @@ def sniffing(q, lock, iface, q2, lock2, q3):
             break
 
         if packets:
+            thd_log = Thread(target=Database_get2insert.insert_Log, args=(packets, ))
+            thd_detector = Thread(target=Detection.detector, args=(oripackets, q2, lock2, gateway, datetime, printdatetime))
+            thd_log.start()
+            thd_detector.start()
+            '''
             ps_log = Process(target=Database_get2insert.insert_Log, args=(packets, ))
             ps_detector = Process(target=Detection.detector, args=(oripackets, q2, lock2, gateway, datetime, printdatetime))
             ps_log.start()
             ps_detector.start()
+            '''
             packets = []
             oripackets = []
 
@@ -170,7 +180,6 @@ def getresult(arpcount, totalarp, icmpcount, totalicmp, dhcpcount, totaldhcp, dn
     #print "Putter put ", result
     q.put(result)
     lock.release()
-
     try:
         signal = q3.get(block=False)
         if signal == 's':

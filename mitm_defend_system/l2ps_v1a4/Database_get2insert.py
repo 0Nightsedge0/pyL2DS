@@ -10,7 +10,7 @@ def insert_Log(pkt):
             #print p
             sql = "insert into Logs_Table(Logs_ID,Datetime,Source_IP,Destination_IP,Source_MAC"
             sql += ",Destination_MAC,Protocol,Data) values('%s','%s','%s','%s','%s','%s','%s','%s')" \
-                   % (p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7])
+                   % ('l'+p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7])
             #print sql
             cursor.execute(sql)
             db.commit()
@@ -23,10 +23,10 @@ def insert_Report(pkt):
     try:
         db = MySQLdb.connect(host="localhost", user="root", passwd="root", db="mydb")
         cursor = db.cursor()
-        print pkt
-        sql = "insert ignore into Report_Table(Report_ID,Datetime,Source_IP,Destination_IP,Source_MAC"
+        #print pkt
+        sql = "insert into Report_Table(Report_ID,Datetime,Source_IP,Destination_IP,Source_MAC"
         sql += ",Destination_MAC,Protocol,Data) values('%s','%s','%s','%s','%s','%s','%s','%s')" \
-               % (pkt[0], pkt[1], pkt[2], pkt[3], pkt[4], pkt[5], pkt[6], pkt[7])
+               % ('r'+pkt[0], pkt[1], pkt[2], pkt[3], pkt[4], pkt[5], pkt[6], pkt[7])
         #print sql
         cursor.execute(sql)
         db.commit()
