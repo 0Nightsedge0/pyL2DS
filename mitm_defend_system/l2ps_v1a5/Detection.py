@@ -51,34 +51,41 @@ def dns_detection():
 
 
 def icmp_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gateway,
-                   q2, lock, op, datetime, printdatetime, num):
-    if pkt[0][2].type == 5:
-        return 0
+                   q2, lock, datetime, printdatetime, num):
+    if pkt[0][2].type == 5 and pkt[0][2].code == 1:
+        check = False
+        for g in gateway:
+            print g[1]
+            if pkt[0][2].gw == g[1]:
+                check = True
+                return 0
+        print 'Alert ICMP redirect'
+        print 'from Source IP: %s Source MAC: %s' % (srcip, hwsrc)
     else:
         return 0
 
 
-def freq_check(count):
+def freq_check(count, proto):
     for item in count:
         #print item
         if item[2] > 10:
-            print "alert"
+            print "alert Frequency Protocol:%4s frequency:%d" % (proto, item[2])
 
 
 def freq_add(srcip, dstip, hwsrc, hwdst, list):
     remark = False
 
     if not list:
-        list.append([dstip, hwdst, 1])
+        list.append([srcip, hwdst, 1])
         remark = True
     else:
         for item in list:
-            if item[0] == dstip and item[1] == hwdst:
+            if item[0] == srcip and item[1] == hwdst:
                 item[2] += 1
                 remark = True
                 break
     if remark == False:
-        list.append([dstip, hwdst, 1])
+        list.append([srcip, hwdst, 1])
 
 
 def freq_handler(srcip, dstip, hwsrc, hwdst, list):
@@ -87,7 +94,6 @@ def freq_handler(srcip, dstip, hwsrc, hwdst, list):
     if list == 'ARP':
         freq_add(srcip, dstip, hwsrc, hwdst, arpcountpers)
     elif list == 'DNS':
-        print "HI"
         freq_add(srcip, dstip, hwsrc, hwdst, dnscountpers)
     elif list == 'DHCP':
         freq_add(srcip, dstip, hwsrc, hwdst, dhcpcountpers)
@@ -160,11 +166,14 @@ def get_proto_type(num, pkt, gateway, q2, lock, datetime, printdatetime):
         if(ICMP in pkt[0]):
             proto_type = "ICMP"
             #print "/ %s" % proto_type
-    print "Type: ", proto_type
-    freq_handler(srcip, dstip, hwsrc, hwdst, proto_type)
+            icmp_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gateway,
+                            q2, lock, datetime, printdatetime, num)
 
     if proto_type == "":
         proto_type = 'Unknown'
+    else:
+        #print "Type: ", proto_type
+        freq_handler(srcip, dstip, hwsrc, hwdst, proto_type)
 
     #print "-------------------------------------------------------------------------------"
 
@@ -180,10 +189,10 @@ def detector(pkts, q2, lock, gateway, datetime, printdatetime):
         get_proto_type(i, pkts[i], gateway, q2, lock, datetime, printdatetime)
 
     #checking
-    freq_check(arpcountpers)
-    freq_check(dhcpcountpers)
-    freq_check(dnscountpers)
-    freq_check(icmpcountpers)
+    freq_check(arpcountpers, "ARP")
+    freq_check(dhcpcountpers, "DHCP")
+    freq_check(dnscountpers, "DNS")
+    freq_check(icmpcountpers, "ICMP")
     print "ARP: ", arpcountpers
     print "DNS: ", dnscountpers
     print "DHCP: ", dhcpcountpers

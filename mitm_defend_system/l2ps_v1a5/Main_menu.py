@@ -6,7 +6,7 @@ import Config
 import RS_connector
 import Report_creator
 '''external modules''' '''build-in or download'''
-from multiprocessing import Process, Queue, Lock, Pool, Manager
+from multiprocessing import Process, Queue, Lock, Pool, Manager, Event
 import sys
 import os
 import time
@@ -42,6 +42,7 @@ def Displayer(q, q2, q3):
             task = q.get(block=False)
             #print "Getter get", task
             timer = optimer(task[9])
+            clearscr()
             print "-------------------Now data and time : %s --------------------" % (task[10])
             print "-------------------------Operation times : %s----------------------------" % (timer)
             displaycounting('ARP', task[0], task[1])
@@ -51,7 +52,7 @@ def Displayer(q, q2, q3):
             print "---->> Network Traffic : %6d \n" % task[8]
             if(q2.qsize() > 0):
                 for i in range(q2.qsize()):
-                    print "Warning No : %04d" % i
+                    print "Warning No : %04d" % (i+1)
                     alert = q2.get(block=False)
                     print alert
         except:
@@ -146,16 +147,11 @@ def display_banner():
     print(s)
     print "###########################################"
 
+
 def get_my_macaddress(iface):
-    '''
-    from uuid import getnode as get_mac
-    mac = '%012x' % get_mac()
-    mac = ':'.join(mac[i*2:i*2+2] for i in range(6))
-    return mac
-    '''
     import os
     try:
-        script = 'ifconfig %s | grep HWaddr | cut -d "H" -f2 | cut -d "r" -f2' % iface
+        script = 'ifconfig %s| grep ether| cut -d" " -f10' % iface
         ip = os.popen(script)
         ip = ip.read()
         if len(ip) == 0:
@@ -170,9 +166,11 @@ def get_my_macaddress(iface):
 def get_my_ipaddress(iface):
     import os
     try:
-        script = 'ifconfig %s | grep "inet addr" | cut -d: -f2 | cut -d" " -f1' % iface
+        script = 'ifconfig %s |grep "inet "|cut -d" " -f10' % iface
         ip = os.popen(script)
+        #print ip
         ip = ip.read()
+        #print "show: ", ip
         if len(ip) == 0:
             return None
         ip = ip.rstrip('\n')
@@ -226,6 +224,7 @@ def display_menu():
             checkin = True
         else:
             print "Input Error.Please try again"
+        clearscr()
 
 
 if('__main__' == __name__):

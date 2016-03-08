@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from bs4 import BeautifulSoup
 import webbrowser
 
+
 def main():
     db_cn = MySQLdb.connect(host="localhost", user="root", passwd="root", db="mydb")
 
@@ -25,11 +26,11 @@ def main():
     plt.savefig('assets/Protocol_log.png')
 
     #plt.show()
-
+    '''
     html_report = open("assets/test_Report.html", "r").read()
     soup = BeautifulSoup(html_report)
     #print soup.prettify()
-
+    '''
     webbrowser.open("assets/test_Report.html")
 
     db_cn.close()
