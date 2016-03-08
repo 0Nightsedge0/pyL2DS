@@ -55,21 +55,32 @@ def icmp_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gate
     if pkt[0][2].type == 5 and pkt[0][2].code == 1:
         check = False
         for g in gateway:
-            print g[1]
+            #print g[1]
             if pkt[0][2].gw == g[1]:
                 check = True
                 return 0
-        print 'Alert ICMP redirect'
-        print 'from Source IP: %s Source MAC: %s' % (srcip, hwsrc)
+        alert = 'Alert ICMP redirect'
+        alert += 'from Source IP: %s Source MAC: %s' % (srcip, hwsrc)
+        alert += 'say gateway is %s' % pkt[0][2].gw
+        lock.acquire()
+        q2.put(alert)
+        lock.release()
+        temp = [datetime+"%04d" % num, printdatetime, srcip,
+                dstip, l2_src_mac, l2_dst_mac, 'ICMP', alert]
+        #print temp
+        Database_get2insert.insert_Report(temp)
     else:
         return 0
 
 
-def freq_check(count, proto):
+def freq_check(count, proto, q2, lock, freq_basline):
     for item in count:
         #print item
-        if item[2] > 10:
-            print "alert Frequency Protocol:%4s frequency:%d" % (proto, item[2])
+        if item[2] > 11 * freq_basline:
+            alert = "alert Frequency Protocol:%4s frequency:%d" % (proto, item[2])
+            lock.acquire()
+            q2.put(alert)
+            lock.release()
 
 
 def freq_add(srcip, dstip, hwsrc, hwdst, list):
@@ -178,7 +189,7 @@ def get_proto_type(num, pkt, gateway, q2, lock, datetime, printdatetime):
     #print "-------------------------------------------------------------------------------"
 
 
-def detector(pkts, q2, lock, gateway, datetime, printdatetime):
+def detector(pkts, q2, lock, gateway, datetime, printdatetime, freq_baseline):
 
     global arpcountpers, dhcpcountpers, icmpcountpers, dnscountpers
 
@@ -189,14 +200,14 @@ def detector(pkts, q2, lock, gateway, datetime, printdatetime):
         get_proto_type(i, pkts[i], gateway, q2, lock, datetime, printdatetime)
 
     #checking
-    freq_check(arpcountpers, "ARP")
-    freq_check(dhcpcountpers, "DHCP")
-    freq_check(dnscountpers, "DNS")
-    freq_check(icmpcountpers, "ICMP")
-    print "ARP: ", arpcountpers
-    print "DNS: ", dnscountpers
-    print "DHCP: ", dhcpcountpers
-    print "ICMP: ", icmpcountpers
+    freq_check(arpcountpers, "ARP", q2, lock, freq_baseline)
+    freq_check(dhcpcountpers, "DHCP", q2, lock, freq_baseline)
+    freq_check(dnscountpers, "DNS", q2, lock, freq_baseline)
+    freq_check(icmpcountpers, "ICMP", q2, lock, freq_baseline)
+    #print "ARP: ", arpcountpers
+    #print "DNS: ", dnscountpers
+    #print "DHCP: ", dhcpcountpers
+    #print "ICMP: ", icmpcountpers
 
     #reset list
     arpcountpers[:] = dhcpcountpers[:] = icmpcountpers[:] = dnscountpers[:] = []

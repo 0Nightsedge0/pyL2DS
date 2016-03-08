@@ -14,7 +14,7 @@ import platform
 
 
 def displaycounting(pname, countpers, total):
-    print "Number of %6s packets per second: %5d  | " % (pname, countpers),
+    print "Number of %6s packets : %5d  | " % (pname, countpers),
     print "     Total %6s packets: %5d" % (pname, total)
 
 
@@ -37,6 +37,7 @@ def optimer(operation_times):
 
 
 def Displayer(q, q2, q3):
+    time.sleep(1)
     while True:
         try:
             task = q.get(block=False)
@@ -185,11 +186,12 @@ def display_menu():
     iface = os.popen('ls /sys/class/net/')
     iface = iface.read()
     iface = iface.split()
+    platf = platform.platform()
 
     while checkin is False:
         print "\n---------Layer 2 Prevention System---------"
         print 'Current System Information '
-        print 'Current OS        :', platform.platform()
+        print 'Current OS        :', platf
         for i in iface:
             print '%-5s IP address  : %-15s' % (i, get_my_ipaddress(i))
             print '%-5s MAC address : %-17s' % (" ", get_my_macaddress(i))
@@ -220,11 +222,11 @@ def display_menu():
             clearscr()
             RS_connector.remote_shell()
         elif(select == '9'):
-            print "Bye Bye"
             checkin = True
         else:
             print "Input Error.Please try again"
         clearscr()
+        print "Bye Bye"
 
 
 if('__main__' == __name__):

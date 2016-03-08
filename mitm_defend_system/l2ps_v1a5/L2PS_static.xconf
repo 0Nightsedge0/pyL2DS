@@ -1,0 +1,11 @@
+# All global settings are here. They are applied to main core program
+#
+# e.g. XXXX = XXXX
+
+# Please note that these names can 'NOT' be removed or change
+# ^^^^^^ That will damage the system
+
+optime = 2
+frequency_baseline = 11
+
+

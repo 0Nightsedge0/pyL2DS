@@ -9,6 +9,7 @@ from threading import Thread
 '''internal modules'''
 import Database_get2insert
 import Detection
+import Config
 
 packets = [] #store pkts (cache) *clear every ten seconds and insert to database
 oripackets = [] #store original packet
@@ -31,6 +32,10 @@ countpers = 0
 '''store now data and time '''
 datetime = ""
 printdatetime = ""
+
+'''store setting or baseline'''
+optime = 1
+freq_baseline = 10
 
 
 def get_packet_type(pkt):
@@ -122,7 +127,7 @@ def get_packet_type(pkt):
         #print "###############################################################################\n"
 
 
-def sniffing(q, lock, iface, q2, lock2, q3):
+def sniffing(q, lock, iface, q2, lock2, q3, optime, freq_basline):
     operation_times = 0
 
     signal = False      #control signal
@@ -137,7 +142,7 @@ def sniffing(q, lock, iface, q2, lock2, q3):
 
         getnowdatetime()
 
-        sniff(iface=iface, prn=get_packet_type, count=0, timeout=1, store=0)
+        sniff(iface=iface, prn=get_packet_type, count=0, timeout=optime, store=0)
         totalarp += arpcount
         totalicmp += icmpcount
         totaldhcp += dhcpcount
@@ -145,14 +150,15 @@ def sniffing(q, lock, iface, q2, lock2, q3):
         count += countpers
 
         signal = getresult(arpcount, totalarp, icmpcount, totalicmp, dhcpcount,
-                            totaldhcp, dnscount, totaldns, count, operation_times, printdatetime, q, lock, q3)
+                           totaldhcp, dnscount, totaldns, count, operation_times, printdatetime, q, lock, q3)
 
         if signal is True:
             break
 
         if packets:
             thd_log = Thread(target=Database_get2insert.insert_Log, args=(packets, ))
-            thd_detector = Thread(target=Detection.detector, args=(oripackets, q2, lock2, gateway, datetime, printdatetime))
+            thd_detector = Thread(target=Detection.detector, args=(oripackets, q2, lock2, gateway, datetime,
+                                                                   printdatetime, freq_baseline))
             thd_log.start()
             thd_detector.start()
             '''
@@ -166,7 +172,7 @@ def sniffing(q, lock, iface, q2, lock2, q3):
 
         #print datetime+"%04d" % (countpers)
         #print "count = ", count
-        operation_times += 1
+        operation_times += optime
 
 
 def getresult(arpcount, totalarp, icmpcount, totalicmp, dhcpcount, totaldhcp, dnscount, totaldns, count, times, printdatetime, q, lock, q3):
@@ -191,12 +197,21 @@ def getnowdatetime():
     printdatetime = time.strftime("%Y-%m-%d %H:%M:%S")
 
 
+def core_setting():
+    setting = Config.readcoresetting()
+    global optime, freq_baseline
+    for s in setting:
+        if s[0] == 'optime':
+            optime = int(s[1])
+        if s[0] == 'frequency_baseline':
+            freq_baseline = int(s[1])
+
+
 def main(q, l, iface, q2, l2, q3):
     # get information from database and collect system info
     print "Collecting information ..."
     time.sleep(0.5)
     global gateway
     gateway = Database_get2insert.get_Gateway()
-    time.sleep(0.5)
-    sniffing(q, l, iface, q2, l2, q3)
-
+    core_setting()
+    sniffing(q, l, iface, q2, l2, q3, optime, freq_baseline)
