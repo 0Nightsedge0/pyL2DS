@@ -9,7 +9,31 @@ dhcpcountpers = [] #dhcp
 icmpcountpers = [] #icmp
 dnscountpers = [] #dns
 
+# scanning detection
+def tcpsyn_scan():
+    return 0
 
+
+def tcpcon_scan():
+    return 0
+
+
+def udp_scan():
+    return 0
+
+
+def version_detect_scan():
+    return 0
+
+
+def os_detect_scan():
+    return 0
+
+
+def aggrestive_scan():
+    return 0
+
+# packet detection
 def arp_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gateway,
                   q2, lock, op, datetime, printdatetime, num):
     alert = None
@@ -33,20 +57,34 @@ def arp_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gatew
             break
         elif(srcip != g[1] and hwsrc != g[2]):
             alert = "Found New Device! IP: %s  MAC address: %s" % (srcip, hwsrc)
-    lock.acquire()
-    q2.put(alert)
-    lock.release()
-    temp = [datetime+"%04d" % num, printdatetime, srcip,
-            dstip, l2_src_mac, l2_dst_mac, 'ARP', alert]
-    #print temp
-    Database_get2insert.insert_Report(temp)
+    if alert is not None:
+        lock.acquire()
+        q2.put(alert)
+        print alert
+        lock.release()
+        temp = [datetime+"%05d" % num, printdatetime, srcip,
+                dstip, l2_src_mac, l2_dst_mac, 'ARP', alert]
+        #print temp
+        Database_get2insert.insert_Report(temp)
 
 
-def dhcp_detection():
+def dhcp_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gateway,
+                   q2, lock, datetime, printdatetime, num):
+    #print pkt[0][3][0].show()
+    if pkt[0][3][0].op == 2:
+        print 'source IP : ', srcip
+        print 'source MAC: ', hwsrc
+        #print pkt[0][3][1].show()
+        print pkt[0][3][1].options
+        dhcplay = pkt[0][3][1].options
+        for l in dhcplay:
+            print l
     return 0
 
 
-def dns_detection():
+def dns_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gateway,
+                  q2, lock, datetime, printdatetime, num):
+    print pkt[0].show()
     return 0
 
 
@@ -64,8 +102,9 @@ def icmp_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gate
         alert += 'say gateway is %s' % pkt[0][2].gw
         lock.acquire()
         q2.put(alert)
+        print alert
         lock.release()
-        temp = [datetime+"%04d" % num, printdatetime, srcip,
+        temp = [datetime+"%05d" % num, printdatetime, srcip,
                 dstip, l2_src_mac, l2_dst_mac, 'ICMP', alert]
         #print temp
         Database_get2insert.insert_Report(temp)
@@ -117,10 +156,6 @@ def get_proto_type(num, pkt, gateway, q2, lock, datetime, printdatetime):
     hwsrc = l2_src_mac = pkt[0].src
     proto_type = ""
 
-    #print "-------------------------------------------------------------------------------"
-    #print "No: %05d" % num
-    #print "Layer 2 Destination MAC address : %s | Layer 2 Source MAC address : %s" % (l2_dst_mac, l2_src_mac)
-
     # Layer 2 : ARP
     if(ARP in pkt[0]):
         proto_type = "ARP"
@@ -129,61 +164,45 @@ def get_proto_type(num, pkt, gateway, q2, lock, datetime, printdatetime):
         hwsrc = pkt[0][1].hwsrc
         hwdst = pkt[0][1].hwdst
 
-        '''
-        print "Type   : %s" % proto_type
-        if(pkt[0][1].op == 1):
-            print "Data   : Who-has (request) %s? Tell %s" % (dstip, srcip)
-        if(pkt[0][1].op == 2):
-            print "Data   : %s is-at (response) %s Tell %s" % (srcip, hwsrc, dstip)
-
-        print "DST IP : %16s" % dstip,
-        print "| DST HW MAC : %20s" % hwdst
-        print "SRC IP : %16s" % srcip,
-        print "| SRC HW MAC : %20s" % hwsrc
-        '''
         arp_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gateway,
                       q2, lock, pkt[0][1].op, datetime, printdatetime, num)
 
     #Layer 3
     if(IP in pkt[0]):
         proto_type = "IP"
-        #print "Type : %s" % proto_type,
         #print pkt[0][1].show()
         srcip = pkt[0][1].src
         dstip = pkt[0][1].dst
 
         if(TCP in pkt[0]):
             proto_type = "TCP"
-            #print "/ %s" % proto_type,
 
             if(DHCP in pkt[0]):
                 proto_type = "DHCP"
-                #print "/ %s" % proto_type
-
-            #print "\n"
+                dhcp_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gateway,
+                               q2, lock, datetime, printdatetime, num)
 
         if(UDP in pkt[0]):
             proto_type = "UDP"
-            #print "/ %s" % proto_type,
 
             if(DHCP in pkt[0]):
                 proto_type = "DHCP"
-                #print "/ %s" % proto_type
+                dhcp_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gateway,
+                               q2, lock, datetime, printdatetime, num)
 
             if(DNS in pkt[0]):
                 proto_type = "DNS"
-                #print "/ %s" % proto_type
+                dns_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gateway,
+                              q2, lock, datetime, printdatetime, num)
 
         if(ICMP in pkt[0]):
             proto_type = "ICMP"
-            #print "/ %s" % proto_type
             icmp_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gateway,
                             q2, lock, datetime, printdatetime, num)
 
     if proto_type == "":
         proto_type = 'Unknown'
     else:
-        #print "Type: ", proto_type
         freq_handler(srcip, dstip, hwsrc, hwdst, proto_type)
 
     #print "-------------------------------------------------------------------------------"

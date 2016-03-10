@@ -113,7 +113,7 @@ def get_packet_type(pkt):
         if proto_type == "":
             proto_type = 'Unknown'
 
-        temp = [datetime+"%04d" % countpers, printdatetime, srcip,
+        temp = [datetime+"%05d" % countpers, printdatetime, srcip,
                     dstip, smac, dmac, proto_type, pktdata]
 
         packets.append(temp)

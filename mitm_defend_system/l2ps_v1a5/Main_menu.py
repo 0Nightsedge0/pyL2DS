@@ -50,7 +50,7 @@ def Displayer(q, q2, q3):
             displaycounting('ICMP', task[2], task[3])
             displaycounting('DHCP', task[4], task[5])
             displaycounting('DNS', task[6], task[7])
-            print "---->> Network Traffic : %6d \n" % task[8]
+            print "---->> Network Traffic  : %6d \n" % task[8]
             if(q2.qsize() > 0):
                 for i in range(q2.qsize()):
                     print "Warning No : %04d" % (i+1)
@@ -69,14 +69,16 @@ def Displayer(q, q2, q3):
 
 
 def stop(q, fn, l3):
+    op = ''
     sys.stdin = os.fdopen(fn)
-    op = raw_input("****You can press (s) to stop****\n")
-    if op == 's':
-        l3.acquire()
-        q.put(op)
-        q.put(op)
-        l3.release()
-        print 'Warning : Stopper get signal'
+    while op != 's':
+        op = str(raw_input("****You can press (s) to stop****\n"))
+        if op == 's':
+            l3.acquire()
+            q.put(op)
+            q.put(op)
+            l3.release()
+            print 'Warning : Stopper get signal'
 
 
 def cinterface():
@@ -226,7 +228,7 @@ def display_menu():
         else:
             print "Input Error.Please try again"
         clearscr()
-        print "Bye Bye"
+    print "Bye Bye"
 
 
 if('__main__' == __name__):

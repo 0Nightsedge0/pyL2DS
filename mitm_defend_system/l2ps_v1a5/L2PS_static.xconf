@@ -6,6 +6,10 @@
 # ^^^^^^ That will damage the system
 
 optime = 2
-frequency_baseline = 11
+max_optime = 10
+min_optime = 1
 
+frequency_baseline = 11
+max_freq = 30
+min_freq = 1
 

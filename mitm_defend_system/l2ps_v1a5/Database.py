@@ -69,7 +69,7 @@ def table_creating(tablename):
     }
     createsql['Logs_Table'] = {
         "CREATE TABLE IF NOT EXISTS `mydb`.`Logs_Table` ("
-        "  `Logs_ID` VARCHAR(19) NOT NULL,"
+        "  `Logs_ID` VARCHAR(20) NOT NULL,"
         "  `DateTime` DATETIME NULL,"
         "  `Source_IP` VARCHAR(16) NULL,"
         "  `Destination_IP` VARCHAR(16) NULL,"
@@ -102,7 +102,7 @@ def table_creating(tablename):
     }
     createsql['Report_Table'] = {
         "CREATE TABLE IF NOT EXISTS `mydb`.`Report_Table` ("
-        "  `Report_ID` VARCHAR(19) NOT NULL,"
+        "  `Report_ID` VARCHAR(20) NOT NULL,"
         "  `DateTime` DATETIME NULL,"
         "  `Source_IP` VARCHAR(16) NULL,"
         "  `Destination_IP` VARCHAR(16) NULL,"
