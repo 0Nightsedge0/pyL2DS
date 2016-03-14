@@ -158,7 +158,7 @@ def sniffing(q, lock, iface, q2, lock2, q3, optime, freq_basline):
         if packets:
             thd_log = Thread(target=Database_get2insert.insert_Log, args=(packets, ))
             thd_detector = Thread(target=Detection.detector, args=(oripackets, q2, lock2, gateway, datetime,
-                                                                   printdatetime, freq_baseline))
+                                                                   printdatetime, freq_baseline, optime))
             thd_log.start()
             thd_detector.start()
             '''

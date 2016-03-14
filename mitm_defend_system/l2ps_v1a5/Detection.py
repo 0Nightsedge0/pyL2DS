@@ -84,7 +84,8 @@ def dhcp_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gate
 
 def dns_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gateway,
                   q2, lock, datetime, printdatetime, num):
-    print pkt[0].show()
+    #print pkt[0].show()
+    print "DNS packet"
     return 0
 
 
@@ -102,7 +103,7 @@ def icmp_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gate
         alert += 'say gateway is %s' % pkt[0][2].gw
         lock.acquire()
         q2.put(alert)
-        print alert
+        #print alert
         lock.release()
         temp = [datetime+"%05d" % num, printdatetime, srcip,
                 dstip, l2_src_mac, l2_dst_mac, 'ICMP', alert]
@@ -112,11 +113,12 @@ def icmp_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gate
         return 0
 
 
-def freq_check(count, proto, q2, lock, freq_basline):
+def freq_check(count, proto, q2, lock, freq_basline, optime):
     for item in count:
         #print item
-        if item[2] > 11 * freq_basline:
-            alert = "alert Frequency Protocol:%4s frequency:%d" % (proto, item[2])
+        if item[2] > (optime * freq_basline):
+            alert = "alert Frequency Protocol: %4s |frequency: %5d times \n" % (proto, item[2])
+            alert += "source IP   : %16s | MAC address: %18s" % (item[0], item[1])
             lock.acquire()
             q2.put(alert)
             lock.release()
@@ -126,16 +128,16 @@ def freq_add(srcip, dstip, hwsrc, hwdst, list):
     remark = False
 
     if not list:
-        list.append([srcip, hwdst, 1])
+        list.append([srcip, hwsrc, 1])
         remark = True
     else:
         for item in list:
-            if item[0] == srcip and item[1] == hwdst:
+            if item[0] == srcip and item[1] == hwsrc:
                 item[2] += 1
                 remark = True
                 break
     if remark == False:
-        list.append([srcip, hwdst, 1])
+        list.append([srcip, hwsrc, 1])
 
 
 def freq_handler(srcip, dstip, hwsrc, hwdst, list):
@@ -208,7 +210,7 @@ def get_proto_type(num, pkt, gateway, q2, lock, datetime, printdatetime):
     #print "-------------------------------------------------------------------------------"
 
 
-def detector(pkts, q2, lock, gateway, datetime, printdatetime, freq_baseline):
+def detector(pkts, q2, lock, gateway, datetime, printdatetime, freq_baseline, optime):
 
     global arpcountpers, dhcpcountpers, icmpcountpers, dnscountpers
 
@@ -219,10 +221,10 @@ def detector(pkts, q2, lock, gateway, datetime, printdatetime, freq_baseline):
         get_proto_type(i, pkts[i], gateway, q2, lock, datetime, printdatetime)
 
     #checking
-    freq_check(arpcountpers, "ARP", q2, lock, freq_baseline)
-    freq_check(dhcpcountpers, "DHCP", q2, lock, freq_baseline)
-    freq_check(dnscountpers, "DNS", q2, lock, freq_baseline)
-    freq_check(icmpcountpers, "ICMP", q2, lock, freq_baseline)
+    freq_check(arpcountpers, "ARP", q2, lock, freq_baseline, optime)
+    freq_check(dhcpcountpers, "DHCP", q2, lock, freq_baseline, optime)
+    freq_check(dnscountpers, "DNS", q2, lock, freq_baseline, optime)
+    freq_check(icmpcountpers, "ICMP", q2, lock, freq_baseline, optime)
     #print "ARP: ", arpcountpers
     #print "DNS: ", dnscountpers
     #print "DHCP: ", dhcpcountpers
