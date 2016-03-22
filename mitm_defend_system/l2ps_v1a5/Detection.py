@@ -90,7 +90,7 @@ common_ports = [1, 3, 4, 6, 7, 9, 13, 17, 19, 20, 21, 22, 23, 24, 25, 26, 30, 32
                 60443, 61532, 61900, 62078, 63331, 64623, 64680, 65000, 65129, 65389]
 
 remark_scan_host = []# [IP, MAC, port ...]
-remark_scan_host_alerted = []
+remark_scan_host_alerted = [] # alerted ip
 arpcountpers = [] #store all port of host(destination) with arp freq per s
 dhcpcountpers = [] #dhcp
 icmpcountpers = [] #icmp
@@ -106,7 +106,11 @@ def tcp_syn_checker(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gat
     else:
         checkhost = False
         for rsh in remark_scan_host:
-            if (len(rsh)-2) > 250 and (len(rsh)-2) < 300:
+            reported = False
+            for alerted in remark_scan_host_alerted:
+                if pkt[IP].src == alerted:
+                    reported = True
+            if (len(rsh)-2) > 300 and reported:
                 alert = "Source IP : %s Source MAC: %s Knocked port: %d" % (pkt[IP].src, pkt[0].src, (len(rsh)-2))
                 lock.acquire()
                 q2.put(alert)
@@ -116,6 +120,7 @@ def tcp_syn_checker(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gat
                         dstip, l2_src_mac, l2_dst_mac, 'TCP', alert]
                 #print temp
                 Database_get2insert.insert_Report(temp)
+                remark_scan_host_alerted.append(pkt[IP].src)
             if rsh[0] == srcip and rsh[1] == l2_src_mac:
                 checkhost = True
                 if pkt[TCP].dport in rsh:

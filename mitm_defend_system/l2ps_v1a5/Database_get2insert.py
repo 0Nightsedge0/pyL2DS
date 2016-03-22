@@ -53,7 +53,7 @@ def get_Gateway():
         result = cursor.fetchall()
 
         for i in result:
-            gateway.append([i[0], i[1], i[2]])
+            gateway.append([i[0], i[1]])
 
         db.close()
         return gateway
@@ -72,7 +72,7 @@ def get_Device_list():
         result = cursor.fetchall()
 
         for i in result:
-            device.append([i[0], i[1], i[2]])
+            device.append([i[0], i[1], i[2]], i[3])
 
         db.close()
         return device

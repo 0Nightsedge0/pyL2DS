@@ -17,22 +17,23 @@ def table_creating(tablename):
     }
     createsql['Device_Table'] = {
         "CREATE TABLE IF NOT EXISTS `mydb`.`Device_Table` ("
-        "`Device_ID` VARCHAR(10) NOT NULL,"
-        "`Device_Type` VARCHAR(20) NULL,"
-        "`Device_Name` VARCHAR(60) NULL,"
-        "`Gateway_ID` VARCHAR(5) NULL,"
+        " `Device_ID` VARCHAR(10) NOT NULL,"
+        " `Device_Type` VARCHAR(20) NULL,"
+        " `Device_Name` VARCHAR(60) NULL,"
+        " `Gateway_IP` VARCHAR(16) NULL,"
         "PRIMARY KEY (`Device_ID`),"
-        "CONSTRAINT `Gateway_ID_fk`"
-        "FOREIGN KEY (`Gateway_ID`)"
-        "REFERENCES `mydb`.`Default_Gateway_Table` (`Gateway_ID`))"
-        "ENGINE = InnoDB"
+        "CONSTRAINT `Gateway_IP_fk`"
+        " FOREIGN KEY (`Gateway_IP`)"
+        "  REFERENCES `mydb`.`Default_Gateway_Table` (`Gateway_IP_Address`))"
+        "CONSTRAINT `Device_Type_check`"
+        " CHECK (`Device_Type` in ('PC','DHCP','DNS','WEB','SERVER','ROUTER','SWITCH'))"
+        "ENGINE = InnoDB;"
     }
     createsql['Default_Gateway_Table'] = {
         "CREATE TABLE IF NOT EXISTS `mydb`.`Default_Gateway_Table` ("
-        "  `Gateway_ID` VARCHAR(5) NOT NULL,"
         "  `Gateway_IP_Address` VARCHAR(16) NULL,"
         "  `Gateway_MAC_Address` VARCHAR(18) NULL,"
-        " PRIMARY KEY (`Gateway_ID`))"
+        " PRIMARY KEY (`Gateway_IP_Address`))"
         "ENGINE = InnoDB;"
     }
     createsql['IP_MAC_Table'] = {
@@ -45,16 +46,6 @@ def table_creating(tablename):
         " CONSTRAINT `Device_ID_IP_MAC_TABLE_fk`"
         "FOREIGN KEY (`Device_ID`)"
         "REFERENCES `mydb`.`Device_Table` (`Device_ID`))"
-        "ENGINE = InnoDB;"
-    }
-    createsql['Log2IP'] = {
-        "CREATE TABLE IF NOT EXISTS `mydb`.`Log2IP` ("
-        "  `IP_MAC_ID` VARCHAR(10) NOT NULL,"
-        "  `IP_address` VARCHAR(16) NOT NULL,"
-        " PRIMARY KEY (`IP_address`),"
-        " CONSTRAINT `IP_MAC_ID_Log2IP_fk`"
-        "FOREIGN KEY (`IP_MAC_ID`)"
-        "REFERENCES `mydb`.`IP_MAC_Table` (`IP_MAC_ID`))"
         "ENGINE = InnoDB;"
     }
     createsql['Log2MAC'] = {
@@ -86,16 +77,6 @@ def table_creating(tablename):
         "  `MAC_address` VARCHAR(18) NOT NULL,"
         " PRIMARY KEY (`MAC_address`),"
         " CONSTRAINT `IP_MAC_ID_Report2MAC_fk`"
-        "FOREIGN KEY (`IP_MAC_ID`)"
-        "REFERENCES `mydb`.`IP_MAC_Table` (`IP_MAC_ID`))"
-        "ENGINE = InnoDB;"
-    }
-    createsql['Report2IP'] = {
-        "CREATE TABLE IF NOT EXISTS `mydb`.`Report2IP` ("
-        "  `IP_MAC_ID` VARCHAR(10) NOT NULL,"
-        " `IP_address` VARCHAR(16) NOT NULL,"
-        " PRIMARY KEY (`IP_address`),"
-        " CONSTRAINT `IP_MAC_ID_Report2IP_fk`"
         "FOREIGN KEY (`IP_MAC_ID`)"
         "REFERENCES `mydb`.`IP_MAC_Table` (`IP_MAC_ID`))"
         "ENGINE = InnoDB;"
@@ -155,7 +136,7 @@ def table_checking(table_name):
 def table_list_checking():
     checkpointer = 1
     table_list = ['User', 'Default_Gateway_Table', 'Device_Table', 'IP_MAC_Table',
-                  'Log2IP', 'Log2MAC', 'Logs_Table', 'Report2IP', 'Report2MAC', 'Report_Table']
+                  'Log2MAC', 'Logs_Table', 'Report2MAC', 'Report_Table']
     table_exist = [0]*len(table_list)
     for i in range(len(table_exist)):
         table_exist[i] = table_checking(table_list[i])
