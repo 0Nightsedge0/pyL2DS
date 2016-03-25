@@ -182,6 +182,30 @@ def get_my_ipaddress(iface):
         return None
 
 
+def display_iface(iface):
+    isodd = False
+
+    length = len(iface)
+    if length % 2 == 0:
+        end = length
+    else:
+        end = length-1
+        isodd = True
+
+    for i in range(0, end, 2):
+        striface = '|%-5s |IP address  : %-15s' % (iface[i], get_my_ipaddress(iface[i]))
+        striface += '\t\t'
+        striface += '| %-5s |IP address  : %-15s \n' % (iface[i+1], get_my_ipaddress(iface[i+1]))
+        striface += '|%-5s |MAC address : %-17s' % (" ", get_my_macaddress(iface[i]))
+        striface += '\t\t'
+        striface += '| %-5s |MAC address : %-17s \n' % (" ", get_my_macaddress(iface[i]))
+    if isodd:
+        striface += '|%-5s |IP address  : %-15s \t\t|\n' % (iface[end], get_my_ipaddress(iface[end]))
+        striface += '|%-5s |MAC address : %-17s' % (" ", get_my_macaddress(iface[end]))
+        striface += '\t\t|'
+    return striface
+
+
 def display_menu():
     checkin = False
 
@@ -194,9 +218,7 @@ def display_menu():
         print "\n---------Layer 2 Prevention System---------"
         print 'Current System Information '
         print 'Current OS        :', platf
-        for i in iface:
-            print '%-5s IP address  : %-15s' % (i, get_my_ipaddress(i))
-            print '%-5s MAC address : %-17s' % (" ", get_my_macaddress(i))
+        print display_iface(iface)
         print "----------------L2PS MENU------------------"
         print "[1] Monitor Network"
         print "[2] View Log"

@@ -132,7 +132,6 @@ def tcp_syn_checker(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gat
             remark_scan_host.append([srcip, l2_src_mac, pkt[TCP].dport])
 
 
-
 def tcpsyn_scan():
     return 0
 

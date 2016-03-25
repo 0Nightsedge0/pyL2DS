@@ -150,7 +150,7 @@ def sniffing(q, lock, iface, q2, lock2, q3, optime, freq_basline):
         count += countpers
 
         signal = getresult(arpcount, totalarp, icmpcount, totalicmp, dhcpcount,
-                           totaldhcp, dnscount, totaldns, count, operation_times, printdatetime, q, lock, q3)
+                           totaldhcp, dnscount, totaldns, count, countpers, operation_times, printdatetime, q, lock, q3)
 
         if signal is True:
             break
@@ -175,9 +175,9 @@ def sniffing(q, lock, iface, q2, lock2, q3, optime, freq_basline):
         operation_times += optime
 
 
-def getresult(arpcount, totalarp, icmpcount, totalicmp, dhcpcount, totaldhcp, dnscount, totaldns, count, times, printdatetime, q, lock, q3):
+def getresult(arpcount, totalarp, icmpcount, totalicmp, dhcpcount, totaldhcp, dnscount, totaldns, count, countpers, times, printdatetime, q, lock, q3):
     #print arpcount, totalarp, icmpcount, totalicmp, dhcpcount, totaldhcp, count
-    result = [arpcount, totalarp, icmpcount, totalicmp, dhcpcount, totaldhcp, dnscount, totaldns, count, times, printdatetime]
+    result = [arpcount, totalarp, icmpcount, totalicmp, dhcpcount, totaldhcp, dnscount, totaldns, count, countpers, times, printdatetime]
     #print "queue size: ", q.qsize()
     lock.acquire()
     #print "Putter put ", result
