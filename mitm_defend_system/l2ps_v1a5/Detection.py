@@ -91,6 +91,9 @@ common_ports = [1, 3, 4, 6, 7, 9, 13, 17, 19, 20, 21, 22, 23, 24, 25, 26, 30, 32
 
 remark_scan_host = []# [IP, MAC, port ...]
 remark_scan_host_alerted = [] # alerted ip
+tcp_stack = []# [IP src, IP dst, dst port, flag]
+
+
 arpcountpers = [] #store all port of host(destination) with arp freq per s
 dhcpcountpers = [] #dhcp
 icmpcountpers = [] #icmp
@@ -132,44 +135,179 @@ def tcp_syn_checker(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gat
             remark_scan_host.append([srcip, l2_src_mac, pkt[TCP].dport])
 
 
-def tcpsyn_scan():
-    return 0
+def tcp_scan_check():
+    global tcp_stack
+    for rsh in tcp_stack:
+        for i in range(3, len(rsh)-1):
+            if rsh[i] == 'SYN' and rsh[i+1] == 'SA':
+                if i+2 <= len(rsh) andrsh[i+2] == 'RST' or rsh[i+2] == 'FIN':
+                    print '%s %s %s SYN SCAN!' % (rsh[0], rsh[1], rsh[2])
+                    break
+                if i+4 <= len(rsh) and rsh[i+2] == 'ACK' and (rsh[i+3] == 'RA' or rsh[i+2] == 'RST' or rsh[i+2] == 'FIN'):
+                    print '%s %s %s Connect SCAN!' % (rsh[0], rsh[1], rsh[2])
+                    break
+            if rsh[i] == 'SYN':
+                for j in range(i, len(rsh)):
+                    if rsh[j] == 'RST' or rsh[j] == 'FIN':
+                        print '%s %s %s Remark this problem (SYN -> RST or FIN)' % (rsh[0], rsh[1], rsh[2])
+                        break
 
 
-def tcpcon_scan():
-    return 0
+def tcp_scan_detection(pkt, q2, lock, datetime, printdatetime, num):
+    # uncommon checking
+    # 0 NULL 3 SYN+FIN 6 SYN+RST 7 SYN+FIN+RST 11 SYN+FIN+RST+PSH
+    if pkt[TCP].flags in [0, 3, 6, 7, 11, 14]:
+            print '%s %s %s Remark this problem (illegal flags!)' % (pkt[IP].src, pkt[0].src, pkt[TCP].dport)
+        # common checking
+    if pkt[TCP].flags == 2: # 2 = SYN
+        '''
+        print "-------------------SYN-------------------"
+        print "Source IP : %s" % pkt[IP].src,
+        print "Source MAC: %s" % pkt[0].src
+        print "dst IP : %s" % pkt[IP].dst,
+        print "dst MAC: %s" % pkt[0].dst
+        print "dst port: %s" % pkt[TCP].dport
+        print pkt[TCP].flags
+        print "Knock port: %s " % pkt[TCP].dport
+        '''
+        checkpoint = True
+        for rsh in tcp_stack:
+            if pkt[IP].src == rsh[0] and pkt[IP].dst == rsh[1] and pkt[TCP].dport == rsh[2]:
+                rsh.append('SYN')
+                checkpoint = False
+                break
+        if checkpoint:
+            tcp_stack.append([pkt[IP].src, pkt[IP].dst, pkt[TCP].dport, 'SYN'])
+    if pkt[TCP].flags == 18: #18 = SYN(2) + ACK(16)
+        '''
+        print "-------------------SA-------------------"
+        print "Source IP : %s" % pkt[IP].src,
+        print "Source MAC: %s" % pkt[0].src
+        print "dst IP : %s" % pkt[IP].dst,
+        print "dst MAC: %s" % pkt[0].dst
+        print "src port: %s" % pkt[TCP].sport
+        print pkt[TCP].flags
+        '''
+        for rsh in tcp_stack:
+            if pkt[IP].src == rsh[1] and pkt[IP].dst == rsh[0] and pkt[TCP].sport == rsh[2]:
+                rsh.append('SA')
+                break
+    if pkt[TCP].flags == 4: # 4 = RST
+        '''
+        print "-------------------RST-------------------"
+        print "Source IP : %s" % pkt[IP].src,
+        print "Source MAC: %s" % pkt[0].src
+        print "dst IP : %s" % pkt[IP].dst,
+        print "dst MAC: %s" % pkt[0].dst
+        print "dst port: %s" % pkt[TCP].dport
+        print pkt[TCP].flags
+        '''
+        for rsh in tcp_stack:
+            if pkt[IP].src == rsh[0] and pkt[IP].dst == rsh[1] and pkt[TCP].dport == rsh[2]:
+                rsh.append('RST')
+                break
+    if pkt[TCP].flags == 20: # 20 = ACK(16) + R(4)
+        '''
+        print "-------------------RA-------------------"
+        print "Source IP : %s" % pkt[IP].src,
+        print "Source MAC: %s" % pkt[0].src
+        print "dst IP : %s" % pkt[IP].dst,
+        print "dst MAC: %s" % pkt[0].dst
+        print "dst port: %s" % pkt[TCP].dport
+        print pkt[TCP].flags
+        '''
+        for rsh in tcp_stack:
+            if pkt[IP].src == rsh[0] and pkt[IP].dst == rsh[1] and pkt[TCP].dport == rsh[2]:
+                rsh.append('RA')
+                break
+    if pkt[TCP].flags == 16: # ACK(16)
+        '''
+        print "-------------------ACK-------------------"
+        print "Source IP : %s" % pkt[IP].src,
+        print "Source MAC: %s" % pkt[0].src
+        print "dst IP : %s" % pkt[IP].dst,
+        print "dst MAC: %s" % pkt[0].dst
+        print "dst port: %s" % pkt[TCP].dport
+        '''
+        if pkt[TCP].seq == 0:
+            print '%s %s %s ACK SCAN!' % (pkt[IP].src, pkt[0].src, pkt[TCP].dport)
+        for rsh in tcp_stack:
+            if pkt[IP].src == rsh[0] and pkt[IP].dst == rsh[1] and pkt[TCP].dport == rsh[2]:
+                rsh.append('ACK')
+                break
+    if pkt[TCP].flags == 1: # FIN(1)
+        '''
+        print "-------------------FIN-------------------"
+        print "Source IP : %s" % pkt[IP].src,
+        print "Source MAC: %s" % pkt[0].src
+        print "dst IP : %s" % pkt[IP].dst,
+        print "dst MAC: %s" % pkt[0].dst
+        print "dst port: %s" % pkt[TCP].dport
+        print pkt[TCP].flags
+        '''
+        if pkt[TCP].ack == 0:
+            print '%s %s %s FIN SCAN!' % (pkt[IP].src, pkt[0].src, pkt[TCP].dport)
+        for rsh in tcp_stack:
+            if pkt[IP].src == rsh[0] and pkt[IP].dst == rsh[1] and pkt[TCP].dport == rsh[2]:
+                rsh.append('FIN')
+                break
+    if pkt[TCP].flags == 17: # FIN + ACK
+        '''
+        print "-------------------FA-------------------"
+        print "Source IP : %s" % pkt[IP].src,
+        print "Source MAC: %s" % pkt[0].src
+        print "dst IP : %s" % pkt[IP].dst,
+        print "dst MAC: %s" % pkt[0].dst
+        print "dst port: %s" % pkt[TCP].dport
+        print pkt[TCP].flags
+        '''
+        if pkt[TCP].seq == 0:
+            print '%s %s %s Mainmon SCAN!' % (pkt[IP].src, pkt[0].src, pkt[TCP].dport)
+    if pkt[TCP].flags == 41: # FIN+PSH+URG
+        '''
+        print "-------------------FPU-------------------"
+        print "Source IP : %s" % pkt[IP].src,
+        print "Source MAC: %s" % pkt[0].src
+        print "dst IP : %s" % pkt[IP].dst,
+        print "dst MAC: %s" % pkt[0].dst
+        print "dst port: %s" % pkt[TCP].dport
+        print pkt[TCP].flags
+        '''
+        if pkt[TCP].ack == 0:
+            print '%s %s %s XMas Tree SCAN!' % (pkt[IP].src, pkt[0].src, pkt[TCP].dport)
+
 
 
 def udp_scan():
     return 0
 
 
-def version_detect_scan():
-    return 0
-
 # packet detection
 def arp_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gateway,
                   q2, lock, op, datetime, printdatetime, num):
     alert = None
-    #print "gateway: ", gateway
+    print "gateway: ", gateway
+    if len(gateway) == 0:
+        return 0
+
     for g in gateway:
-        if srcip == g[1] and hwsrc == g[2]:
+        if srcip == g[0] and hwsrc == g[1]:
             return 0
-        elif srcip == g[1] and hwsrc != g[2]:
+        elif srcip == g[0] and hwsrc != g[1]:
             alert = "Alert IP: %s" % srcip
             alert += " Source MAC: %s" % hwsrc
-            alert += " Real MAC address: %s" % g[2]
+            alert += " Real MAC address: %s" % g[1]
             alert += " Summary: "
             if(op == 1):
                 alert += "Who-has (request) %s? Tell %s" % (dstip, srcip)
             else:
                 alert += "%s is-at (response) %s Tell %s" % (srcip, hwsrc, dstip)
             break
-        elif(srcip != g[1] and hwsrc == g[2]):
+        elif(srcip != g[0] and hwsrc == g[1]):
             alert = "Is IP of Device (MAC address: %s ) changed?" % hwsrc
-            alert += "Past IP: %s  Now IP: %s" % (g[1], srcip)
+            alert += "Past IP: %s  Now IP: %s" % (g[0], srcip)
             break
-        elif(srcip != g[1] and hwsrc != g[2]):
+        elif(srcip != g[0] and hwsrc != g[1]):
             alert = "Found New Device! IP: %s  MAC address: %s" % (srcip, hwsrc)
     if alert is not None:
         lock.acquire()
@@ -185,6 +323,9 @@ def arp_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gatew
 def dhcp_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gateway,
                    q2, lock, datetime, printdatetime, num):
     #print pkt[0][3][0].show()
+    if len(gateway) == 0:
+        return 0
+
     if pkt[0][3][0].op == 2:
         print 'source IP : ', srcip
         print 'source MAC: ', hwsrc
@@ -197,12 +338,18 @@ def dhcp_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gate
 def dns_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gateway,
                   q2, lock, datetime, printdatetime, num):
     #print pkt[0].show()
+    if len(gateway) == 0:
+        return 0
+
     print "DNS packet"
     return 0
 
 
 def icmp_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gateway,
                    q2, lock, datetime, printdatetime, num):
+    if len(gateway) == 0:
+        return 0
+
     if pkt[0][2].type == 5 and pkt[0][2].code == 1:
         check = False
         for g in gateway:
@@ -290,9 +437,7 @@ def get_proto_type(num, pkt, gateway, q2, lock, datetime, printdatetime):
 
         if(TCP in pkt[0]):
             proto_type = "TCP"
-            if pkt[TCP].flags == 2:
-                tcp_syn_checker(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gateway,
-                               q2, lock, datetime, printdatetime, num)
+
             if(DHCP in pkt[0]):
                 proto_type = "DHCP"
                 dhcp_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gateway,
@@ -318,6 +463,8 @@ def get_proto_type(num, pkt, gateway, q2, lock, datetime, printdatetime):
 
     if proto_type == "":
         proto_type = 'Unknown'
+    elif proto_type == 'TCP':
+        tcp_scan_detection(pkt, q2, lock, datetime, printdatetime, num)
     else:
         freq_handler(srcip, dstip, hwsrc, hwdst, proto_type)
 
@@ -325,7 +472,6 @@ def get_proto_type(num, pkt, gateway, q2, lock, datetime, printdatetime):
 
 
 def detector(pkts, q2, lock, gateway, datetime, printdatetime, freq_baseline, optime):
-
     global arpcountpers, dhcpcountpers, icmpcountpers, dnscountpers
 
     for i in range(len(pkts)):
@@ -344,5 +490,8 @@ def detector(pkts, q2, lock, gateway, datetime, printdatetime, freq_baseline, op
     #print "DHCP: ", dhcpcountpers
     #print "ICMP: ", icmpcountpers
 
+    tcp_scan_check()
+
     #reset list
     arpcountpers[:] = dhcpcountpers[:] = icmpcountpers[:] = dnscountpers[:] = []
+    tcp_stack[:] = remark_scan_host[:] = remark_scan_host_alerted[:] = []
