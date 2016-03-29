@@ -183,8 +183,24 @@ ENGINE = InnoDB;
 
 ------------------------------------------------------
 
+CREATE TABLE IF NOT EXISTS `mydb`.`Device_table` (
+  `Device_ID` VARCHAR(10) NOT NULL,
+  `Device_Type` VARCHAR(20) NULL,
+  `Device_Name` VARCHAR(60) NULL,
+  `Gateway_ID` VARCHAR(5) NULL,
+  PRIMARY KEY (`Device_ID`),
+  CONSTRAINT `Gateway_ID_fk`
+    FOREIGN KEY (`Gateway_ID`)
+    REFERENCES `mydb`.`Default_Gateway_Table` (`Gateway_ID`)
+    )
+ENGINE = InnoDB
 
-
+CREATE TABLE IF NOT EXISTS `mydb`.`Default_Gateway_Table` (
+  `Gateway_ID` VARCHAR(5) NOT NULL,
+  `Gateway_IP_Address` VARCHAR(16) NULL,
+  `Gateway_MAC_Address` VARCHAR(18) NULL,
+  PRIMARY KEY (`Gateway_ID`))
+ENGINE = InnoDB
 
 
 
