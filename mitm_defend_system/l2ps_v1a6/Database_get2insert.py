@@ -111,7 +111,10 @@ def get_Log_list():
         cursor.execute("select * from Logs_Table")
         result = cursor.fetchall()
 
+        #print result
+
         for i in result:
+            #print i
             logs.append([i[0], i[1], i[2], i[3], i[4], i[5], i[6], i[7]])
 
         print "------------------------Logs---------------------------"
@@ -134,8 +137,13 @@ def get_Report_list():
         cursor.execute("select * from Report_Table")
         result = cursor.fetchall()
 
+
         for i in result:
             report.append([i[0], i[1], i[2], i[3], i[4], i[5], i[6], i[7]])
+
+        print "------------------------Logs---------------------------"
+        for i in report:
+            print i
 
         db.close()
         return report
