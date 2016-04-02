@@ -43,11 +43,11 @@ def arp_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gatew
             alert = "Is IP of Device (MAC address: %s ) changed?" % hwsrc
             alert += "Past IP: %s  Now IP: %s" % (g[0], srcip)
             break
-        elif(srcip != g[0] and hwsrc != g[1]):
-            alert = "Found New Device! IP: %s  MAC address: %s" % (srcip, hwsrc)
+        #elif(srcip != g[0] and hwsrc != g[1]):
+        #    alert = "Found New Device! IP: %s  MAC address: %s" % (srcip, hwsrc)
     if alert is not None:
         lock.acquire()
-        q2.put([srcip, hwsrc, 'ARP', alert])
+        q2.put([srcip, dstip, hwsrc, hwdst, 'ARP', alert])
         #print alert
         lock.release()
         temp = [datetime+"%05d" % num, printdatetime, srcip,
@@ -77,7 +77,7 @@ def dns_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gatew
     if len(gateway) == 0:
         return 0
 
-    print "DNS packet"
+    #print "DNS packet"
     return 0
 
 
@@ -97,7 +97,7 @@ def icmp_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gate
         alert += 'from Source IP: %s Source MAC: %s' % (srcip, hwsrc)
         alert += 'say gateway is %s' % pkt[0][2].gw
         lock.acquire()
-        q2.put([srcip, hwsrc, 'ICMP redirect', alert])
+        q2.put([srcip, dstip, hwsrc, hwdst, 'ICMP redirect', alert])
         #print alert
         lock.release()
         temp = [datetime+"%05d" % num, printdatetime, srcip,
