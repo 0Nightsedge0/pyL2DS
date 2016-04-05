@@ -11,5 +11,8 @@ min_optime = 1
 
 frequency_baseline = 13
 max_freq = 30
-min_freq = 1
+min_freq = 5
+
+tcp_port_knock_limit = 300
+udp_port_knock_limit = 300
 

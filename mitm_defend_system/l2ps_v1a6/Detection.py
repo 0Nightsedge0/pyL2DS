@@ -154,7 +154,9 @@ def freq_handler(srcip, dstip, hwsrc, hwdst, list):
 
 def get_proto_type(num, pkt, gateway, q2, lock, datetime, printdatetime,
                    remark_scan_host_tcp, remark_scan_host_tcp_alerted,
-                   remark_scan_host_udp, remark_scan_host_udp_alerted):
+                   remark_scan_host_udp, remark_scan_host_udp_alerted,
+                   tcp_port_knock_limit, udp_port_knock_limit):
+
     hwdst = l2_dst_mac = pkt[0].dst
     hwsrc = l2_src_mac = pkt[0].src
     proto_type = ""
@@ -212,19 +214,22 @@ def get_proto_type(num, pkt, gateway, q2, lock, datetime, printdatetime,
         if pkt[TCP].flags == 2:
             Detection_tcpudp_scan.tcp_syn_checker(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst,
                                                   q2, lock, datetime, printdatetime, num,
-                                                  remark_scan_host_tcp, remark_scan_host_tcp_alerted)
+                                                  remark_scan_host_tcp, remark_scan_host_tcp_alerted,
+                                                  tcp_port_knock_limit)
 
         return 0
     elif proto_type == 'UDP':
         Detection_tcpudp_scan.udp_scan(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst,
                                        q2, lock, datetime, printdatetime, num,
-                                       remark_scan_host_udp, remark_scan_host_udp_alerted)
+                                       remark_scan_host_udp, remark_scan_host_udp_alerted, udp_port_knock_limit)
     else:
         freq_handler(srcip, dstip, hwsrc, hwdst, proto_type)
 
 
 def detector(pkts, q2, lock, gateway, datetime, printdatetime, freq_baseline, optime,
-             remark_scan_host_tcp, remark_scan_host_tcp_alerted, remark_scan_host_udp, remark_scan_host_udp_alerted):
+             tcp_port_knock_limit, udp_port_knock_limit,
+             remark_scan_host_tcp, remark_scan_host_tcp_alerted,
+             remark_scan_host_udp, remark_scan_host_udp_alerted):
     global arpcountpers, dhcpcountpers, icmpcountpers, dnscountpers
 
     time = 0
@@ -235,7 +240,8 @@ def detector(pkts, q2, lock, gateway, datetime, printdatetime, freq_baseline, op
         #print pkts[i].summary()
         get_proto_type(i, pkts[i], gateway, q2, lock, datetime, printdatetime,
                        remark_scan_host_tcp, remark_scan_host_tcp_alerted,
-                       remark_scan_host_udp, remark_scan_host_udp_alerted)
+                       remark_scan_host_udp, remark_scan_host_udp_alerted,
+                       tcp_port_knock_limit, udp_port_knock_limit)
 
     #checking F+4 numbers -> db index for freq
     global fnum

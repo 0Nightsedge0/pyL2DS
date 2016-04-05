@@ -238,7 +238,7 @@ def display_menu():
         elif(select == '3'):
             clearscr()
             Database_get2insert.get_Report_list()
-            #Report_creator.main()
+            Report_creator.main()
         elif(select == '4'):
             clearscr()
             Config.main('Add')
