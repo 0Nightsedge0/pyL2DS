@@ -1,6 +1,8 @@
 __author__ = 'TKS'
 
 '''external modules''' '''build-in or download'''
+import logging
+logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 from scapy.all import *
 import time
 from multiprocessing import Process
@@ -187,10 +189,10 @@ def sniffing(q, lock, iface, q2, lock2, q3, optime, freq_basline, tcp_port_knock
         remark_clean_time_tcp += optime
         remark_clean_time_udp += optime
         # every x second clean remark once
-        if remark_clean_time_tcp > 180:
+        if remark_clean_time_tcp > 300:
             remark_scan_host_tcp_alerted[:] = remark_scan_host_tcp[:] = []
             remark_clean_time_tcp = 0
-        if remark_clean_time_udp > 300:
+        if remark_clean_time_udp > 600:
             remark_scan_host_udp[:] = remark_scan_host_udp_alerted[:] = []
             remark_clean_time_udp = 0
 

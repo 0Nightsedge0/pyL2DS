@@ -152,11 +152,13 @@ def tcp_scan_checker(q2, lock, datetime, printdatetime, fnum,
                      tcp_stack, tcp_scan_method_alerted):
     for rsh in tcp_stack:
         #print rsh
-        for i in range(4, len(rsh)-1):
+        for i in range(5, len(rsh)-1):
+            #print i, len(rsh), rsh[i] == 'SYN' and rsh[i+1] == 'SA', i+2 > len(rsh)-1
+            #print i+3 > len(rsh)-1
             if rsh[i] == 'SYN' and rsh[i+1] == 'SA':
-                if i+2 > len(rsh):
+                if i+2 > len(rsh)-1:
                     break
-                if i+2 <= len(rsh) and rsh[i+2] == 'RST' or rsh[i+2] == 'FIN':
+                elif rsh[i+2] == 'RST' or rsh[i+2] == 'FIN':
                     if tcp_scan_knew(rsh[0], 'SYN', tcp_scan_method_alerted):
                         #print '%s %s %s SYN SCAN!' % (rsh[0], rsh[1], rsh[2])
                         tcp_scan_checker2db2q(rsh[0], rsh[1], rsh[2], rsh[3], 'SYN SCAN',
@@ -164,9 +166,9 @@ def tcp_scan_checker(q2, lock, datetime, printdatetime, fnum,
                         tcp_scan_method_alerted.append([rsh[0], 'SYN'])
                         fnum += 1
                     break
-                if i+4 > len(rsh):
+                if i+3 > len(rsh)-1:
                     break
-                if i+4 <= len(rsh) and rsh[i+2] == 'ACK' and (rsh[i+3] == 'RA' or rsh[i+2] == 'RST' or rsh[i+2] == 'FIN'):
+                elif rsh[i+2] == 'ACK' and (rsh[i+3] == 'RA' or rsh[i+2] == 'RST' or rsh[i+2] == 'FIN'):
                     if tcp_scan_knew(rsh[0], 'Connect', tcp_scan_method_alerted):
                         #print '%s %s %s Connect SCAN!' % (rsh[0], rsh[1], rsh[2])
                         tcp_scan_checker2db2q(rsh[0], rsh[1], rsh[2], rsh[3], 'Connect SCAN',
@@ -177,7 +179,7 @@ def tcp_scan_checker(q2, lock, datetime, printdatetime, fnum,
             if rsh[i] == 'SYN':
                 for j in range(i, len(rsh)):
                     if rsh[j] == 'RST' or rsh[j] == 'FIN':
-                        if tcp_scan_knew(rsh[0], 'RST/FIN'):
+                        if tcp_scan_knew(rsh[0], 'RST/FIN', tcp_scan_method_alerted):
                             #print '%s %s %s Remark this problem (SYN -> RST or FIN)' % (rsh[0], rsh[1], rsh[2])
                             tcp_scan_checker2db2q(rsh[0], rsh[1], rsh[2], rsh[3], 'illegal connection (SYN -> RST or FIN)',
                                                   'port: %s' % rsh[4], q2, lock, datetime, printdatetime, fnum)
@@ -237,6 +239,8 @@ def tcp_scan_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst,
                                       'port: %s' % pkt[TCP].dport, q2, lock, datetime, printdatetime, num)
                 tcp_scan_method_alerted.append([pkt[IP].src, 'ACK'])
         for rsh in tcp_stack:
+            #print pkt[IP].src, pkt[IP].dst, pkt[TCP].dport
+            #print rsh[0], rsh[1], rsh[4]
             if pkt[IP].src == rsh[0] and pkt[IP].dst == rsh[1] and pkt[TCP].dport == rsh[4]:
                 rsh.append('ACK')
                 break
@@ -273,6 +277,7 @@ def udp_scan(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst,
              q2, lock, datetime, printdatetime, num,
              remark_scan_host_udp, remark_scan_host_udp_alerted, udp_port_knock_limit):
     alert = None
+    #print remark_scan_host_udp
     if not remark_scan_host_udp:
         remark_scan_host_udp.append([srcip, l2_src_mac, pkt[UDP].dport])
     else:
@@ -286,7 +291,7 @@ def udp_scan(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst,
                     reported = True
             #print reported, len(rsh)-2
             if (len(rsh)-2) > udp_port_knock_limit and not reported:
-                alert = "Source IP : %s Source MAC: %s UDP Knocked more than ports  more than %d" % (pkt[IP].src, pkt[0].src, (len(rsh)-2))
+                alert = "Source IP : %s Source MAC: %s UDP Knocked more than ports  %d" % (pkt[IP].src, pkt[0].src, (len(rsh)-2))
                 lock.acquire()
                 q2.put([rsh[0], rsh[1], 'UDP knock port', alert])
                 #print alert

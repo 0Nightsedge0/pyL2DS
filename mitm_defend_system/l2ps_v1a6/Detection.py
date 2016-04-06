@@ -262,6 +262,8 @@ def detector(pkts, q2, lock, gateway, datetime, printdatetime, freq_baseline, op
     if time < optime:
         arpcountpers[:] = dhcpcountpers[:] = icmpcountpers[:] = dnscountpers[:] = []
         #print tcp_scan_method_alerted
-        tcp_scan_method_alerted[:] = tcp_stack[:] = []
+        tcp_scan_method_alerted[:] = []
+    if time % 2 == 0:
+        tcp_stack[:] = []
     #print tcp_scan_method_alerteds
     time = optime
