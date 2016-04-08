@@ -220,7 +220,7 @@ def getnowdatetime():
 
 
 def core_setting():
-    setting = Config.readcoresetting()
+    setting = Config.read_core_setting()
     global optime, freq_baseline
     for s in setting:
         if s[0] == 'optime':
