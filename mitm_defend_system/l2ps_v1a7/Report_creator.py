@@ -2,7 +2,6 @@ import MySQLdb
 import pandas
 import matplotlib.pyplot as plt
 from bs4 import BeautifulSoup
-import webbrowser
 
 
 def main():

@@ -114,7 +114,7 @@ def dns_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gatew
 
 
 def icmp_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gateway,
-                   q2, lock, datetime, printdatetime, num):
+                   q2, lock, datetime, printdatetime, num, device):
     if len(gateway) == 0:
         return 0
 
@@ -144,6 +144,7 @@ def freq_check(count, proto, q2, lock, freq_basline, optime, fnum, datetime, pri
     for item in count:
         #print item
         if item[2] > (optime * freq_basline):
+            fnum += 1
             alert = "alert Frequency Protocol: %4s |frequency: %5d times " % (proto, item[2])
             alert += "source IP   : %16s | MAC address: %18s" % (item[0], item[1])
             lock.acquire()
@@ -152,7 +153,6 @@ def freq_check(count, proto, q2, lock, freq_basline, optime, fnum, datetime, pri
             temp = [datetime+"F%04d" % fnum, printdatetime, item[0],
                     '', item[1], '', proto, alert]
             Database_get2insert.insert_Report(temp)
-            fnum += 1
 
 
 def freq_add(srcip, dstip, hwsrc, hwdst, list):
@@ -287,6 +287,7 @@ def detector(pkts, q2, lock, gateway, datetime, printdatetime, freq_baseline, op
     #print "DNS: ", dnscountpers
     #print "DHCP: ", dhcpcountpers
     #print "ICMP: ", icmpcountpers
+    fnum = 0
 
     Detection_tcpudp_scan.tcp_scan_checker(q2, lock, datetime, printdatetime, fnum,
                                            remark_scan_host_tcp, remark_scan_host_tcp_alerted,

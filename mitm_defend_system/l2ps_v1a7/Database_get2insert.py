@@ -46,8 +46,9 @@ def insert_Gateway(gateway_ip, gateway_mac):
         cursor.execute(sql)
         db.commit()
         db.close()
+        return "Query OK"
     except MySQLdb.Error as e:
-        print("Error %d: %s" % (e.args[0], e.args[1]))
+        return "Error %d: %s" % (e.args[0], e.args[1])
 
 
 def insert_Device(device_id, device_type, device_name, gateway_ip):
@@ -60,8 +61,9 @@ def insert_Device(device_id, device_type, device_name, gateway_ip):
         cursor.execute(sql)
         db.commit()
         db.close()
+        return "Query OK"
     except MySQLdb.Error as e:
-        print("Error %d: %s" % (e.args[0], e.args[1]))
+        return "Error %d: %s" % (e.args[0], e.args[1])
 
 
 def get_Gateway():
@@ -80,7 +82,28 @@ def get_Gateway():
         return gateway
 
     except MySQLdb.Error as e:
-        print("Error %d: %s" % (e.args[0], e.args[1]))
+        return "Error %d: %s" % (e.args[0], e.args[1])
+
+
+def get_last_Device():
+    try:
+        db = MySQLdb.connect(host="localhost", user="root", passwd="root", db="mydb")
+        cursor = db.cursor()
+        cursor.execute("select * from Device_Table order by Device_ID DESC LIMIT 1")
+        result = cursor.fetchall()
+        return result
+    except MySQLdb.Error as e:
+        return "Error %d: %s" % (e.args[0], e.args[1])
+
+def get_last_IMT():
+    try:
+        db = MySQLdb.connect(host="localhost", user="root", passwd="root", db="mydb")
+        cursor = db.cursor()
+        cursor.execute("select * from IP_MAC_Table order by IP_MAC_ID DESC LIMIT 1")
+        result = cursor.fetchall()
+        return result
+    except MySQLdb.Error as e:
+        return "Error %d: %s" % (e.args[0], e.args[1])
 
 
 def get_Device2address_list():

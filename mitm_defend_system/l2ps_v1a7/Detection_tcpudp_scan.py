@@ -205,8 +205,9 @@ def tcp_scan_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst,
                        q2, lock, datetime, printdatetime, num,
                        tcp_stack, tcp_scan_method_alerted):
     # uncommon checking
-    # 0 NULL 3 SYN+FIN 6 SYN+RST 7 SYN+FIN+RST 11 SYN+FIN+RST+PSH
-    if pkt[TCP].flags in [0, 3, 6, 7, 11, 14]:
+    # 0 NULL 3 SYN+FIN 6 SYN+RST 7 SYN+FIN+RST 11 SYN+FIN+PSH 13 SYN+RST+PSH 13 SYN+RST+FIN+PSH
+    # 43 SYN+FIN+PSH+URG # 46 SYN+RST+PSH+URG
+    if pkt[TCP].flags in [0, 1, 3, 6, 7, 11, 13, 15, 43, 46]:
         if tcp_scan_knew(pkt[IP].src, 'illegal', tcp_scan_method_alerted):
             #print '%s %s %s Remark this problem (illegal flags!)' % (pkt[IP].src, pkt[0].src, pkt[TCP].dport)
             tcp_scan_checker2db2q(srcip, l2_src_mac, dstip, l2_dst_mac, 'illegal TCP flags',
