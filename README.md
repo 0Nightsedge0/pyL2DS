@@ -25,8 +25,8 @@
 				c.  Process 3: Stop Signal creater			[Yes]
 			5. Connect to Router and Switch
 				a. ssh										[Yes]
-			6. Prevention									[No]
-			7. Report & Log HTML							[NO]
+			6. Prevention									[Test]
+			7. Report & Log HTML							[Test]
 			
 		#########################################################	
 		Detection Functions:
@@ -35,27 +35,28 @@
 				2. ARP frequency 							[Yes]
 				3. ICMP Frame Checking						[Yes]
 				4. ICMP Frame frequency						[Yes]
-				5. DHCP Checking							[NO]
+				5. DHCP Checking							[Test]
 				6. DHCP frequency							[Yes]
-				7. DNS checking								[NO]
+				7. DNS checking								[Test]
 				8. DNS frequency							[Yes]
 			b. Network Scan
-				1. TCP SYN scan								[NO]
-				2. TCP connect scan							[NO]
-				3. UDP scan									[NO]
+				1. TCP SYN scan								[YES]
+				2. TCP connect scan							[YES]
+				3. UDP scan									[YES]
 				4. Ping scan								[arp frequency + icmp frequency above]
-				5. Version detection scan					[NO]
-				6. OS detection scan						[NO]
-				7. Aggrestive scan							[NO]
+				5. Version detection scan					[YES]
+				6. TCP ACK scan
+				7. TCP Xmas Tree scan
+				8. -sM 
 		#########################################################
 		GUI											
 			1. Design										[Yes]
-			2. Mergo with core								[NO]
+			2. Mergo with core								[YES]
 			Track:
 				a. Draw graph								[Yes]
-					a1. line graph						[No]
-					a2. bar graph						[NO]
-				b. Mergo with GUI							[NO]
+					a1. line graph						[YES]
+					a2. bar graph						[YES]
+				b. Mergo with GUI							[YES]
 			...Still need to add...
 			
 	------------------------------------------------------------------------
