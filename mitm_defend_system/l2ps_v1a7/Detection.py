@@ -287,8 +287,6 @@ def detector(pkts, q2, lock, gateway, datetime, printdatetime, freq_baseline, op
              device):
     global arpcountpers, dhcpcountpers, icmpcountpers, dnscountpers
 
-    time = 0
-
     for i in range(len(pkts)):
         #print i,
         #print pkts[i].show()
@@ -316,11 +314,12 @@ def detector(pkts, q2, lock, gateway, datetime, printdatetime, freq_baseline, op
                                            tcp_stack, tcp_scan_method_alerted)
 
     #reset list
-    if time < optime:
-        arpcountpers[:] = dhcpcountpers[:] = icmpcountpers[:] = dnscountpers[:] = []
-        #print tcp_scan_method_alerted
+    #print optime
+
+    arpcountpers[:] = dhcpcountpers[:] = icmpcountpers[:] = dnscountpers[:] = []
+    #print tcp_scan_method_alerted
+    if optime % 3 == 0:
         tcp_scan_method_alerted[:] = []
-    if time % 5 == 0:
+    if optime % 3 == 0:
         tcp_stack[:] = []
     #print tcp_scan_method_alerteds
-    time = optime

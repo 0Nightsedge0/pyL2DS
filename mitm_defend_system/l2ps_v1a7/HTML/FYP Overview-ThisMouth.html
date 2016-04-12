@@ -27,7 +27,7 @@
       <span class="sr-only">Toggle navigation</span>
       <span class="icon-bar"></span>
       <span class="icon-bar"></span><span class="icon-bar"></span></button>
-      <h4><b><em><a class="navbar-brand" href="FYP Home.html">Layer2 Prevention System</a></em></b></h4></div>
+      <h4><b><em><a class="navbar-brand" href="FYP Home.html">Layer 2 Prevention System</a></em></b></h4></div>
     <!-- Collect the nav links, forms, and other content for toggling -->
    
    
@@ -54,9 +54,9 @@
 
 
 <div class="jumbotron">
-<h1>Overview Month</h1>
+<h1 style="padding:0px 40px;">Overview Month</h1>
 <hr />
-<nav>
+<nav style="padding: 0px 40px;">
   <!-- Add class .pagination-lg for larger blocks or .pagination-sm for smaller blocks-->
   <ul class="pagination">
     <li><a href="FYP Overview.html">All</a></li>
@@ -66,31 +66,52 @@
 </nav>
 
 
-<div class="row">
-  <div class="col-md-4"> </div>
-</div>
+<div id="show_table" style="padding: 10px 40px;">
+<table width="1000" border="3">
+  <tr>
+    <td align="center"><span style="font-weight:bold"><font size="5">All Traffic in this month</font> </span></td>
+    <td align="center"><span style="font-weight:bold"><font size="5">All Detect Attacks in this month</font></span></td>
+  </tr>
 
-<table border="2">
+  <tr>
+    <td><img src="GraphPhoto/Traffic_log_this_month.png" alt="Placeholder image" width="500"></td>
+    <td><img src="GraphPhoto/Detect_attacks_this_month.png" alt="Placeholder image" width="500"></td>
+  </tr>
+
+  <tr>
+    <td align="center"><span style="font-weight:bold"><font size="5">Top 5 Protocol of Traffic in this month</font> </span></td>
+    <td align="center"><span style="font-weight:bold"><font size="5">Attacks and safe traffic in this month</font></span></td>
+  </tr>
+
+  <tr>
+    <td><img src="GraphPhoto/Protocol_log_this_month.png" alt="Placeholder image" width="500"></td>
+    <td><img src="GraphPhoto/Attack_per_Traffic_this_month.png"  alt="Placeholder image" width="500"></td>
+  </tr>
+
 <tr>
-<td><img src="GraphPhoto/Attack_per_Traffic_this_month.png" alt="Placeholder image" width="400"></td>
+    <td>
+      <span> Details: </span>
+      <ul>
+        <li>1</li>
+        <li>2</li>
+        <li>3</li>
+        <li>4</li>
+        <li>5</li>
+      </ul>
+    </td>
+    <td>
+    <span> Details: </span>
+      <ul>
+        <li>1</li>
+        <li>2</li>
+      </ul>
+    </td>
+  </tr>
 
-<td><img src="GraphPhoto/Detect_attacks_this_month.png" alt="Placeholder image" width="400"></td>
-</tr>
-
-<tr>
-<td><img src="images/ImgResponsive_Placeholder.png" alt="Placeholder image" width="400"></td>
-
-<td><img src="images/ImgResponsive_Placeholder.png" alt="Placeholder image" width="400"></td>
-</tr>
 </table>
 
 
-<dl class="Data">
-<dt><dfn>ARP</dfn></dt>
-<dd><img src="GraphPhoto/Attack_per_Traffic_this_month.png" class="img-thumbnail img-responsive" alt="Placeholder image"></dd>
-<dt><dfn>ICMP</dfn></dt>
-<dd><img src="GraphPhoto/Detect_attacks_this_month.png" class="img-thumbnail img-responsive" alt="Placeholder image"></dd>
-</dl>
+</div>
 
 </div>
 

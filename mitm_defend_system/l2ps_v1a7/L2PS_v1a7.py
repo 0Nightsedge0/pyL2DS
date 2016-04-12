@@ -165,11 +165,10 @@ def sniffing(q, lock, iface, q2, lock2, q3, optime, freq_basline, tcp_port_knock
 
         if signal is True:
             break
-
         if packets:
             thd_log = Thread(target=Database_get2insert.insert_Log, args=(packets, ))
             thd_detector = Thread(target=Detection.detector, args=(oripackets, q2, lock2, gateway, datetime,
-                                                                   printdatetime, freq_baseline, optime,
+                                                                   printdatetime, freq_baseline, operation_times,
                                                                    tcp_port_knock_limit, udp_port_knock_limit,
                                                                    remark_scan_host_tcp, remark_scan_host_tcp_alerted,
                                                                    remark_scan_host_udp, remark_scan_host_udp_alerted,

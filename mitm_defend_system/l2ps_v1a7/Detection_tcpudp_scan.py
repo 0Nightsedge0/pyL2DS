@@ -96,6 +96,8 @@ def tcp_syn_checker(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst,
                     q2, lock, datetime, printdatetime, num,
                     remark_scan_host_tcp, remark_scan_host_tcp_alerted, tcp_port_knock_limit):
     alert = None
+    #print remark_scan_host_tcp
+    #print not (remark_scan_host_tcp)
     if not remark_scan_host_tcp:
         remark_scan_host_tcp.append([srcip, l2_src_mac, pkt[TCP].dport])
         #print remark_scan_host_tcp
@@ -106,6 +108,7 @@ def tcp_syn_checker(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst,
             for alerted in remark_scan_host_tcp_alerted:
                 if pkt[IP].src == alerted:
                     reported = True
+                    continue
             #print reported, "HIIIIIIIIIIIII", len(rsh)-2
             if (len(rsh)-2) > tcp_port_knock_limit and not reported:
                 alert = "Source IP : %s Source MAC: %s TCP Knocked ports more than %d ports" % (pkt[IP].src, pkt[0].src, (len(rsh)-2))
@@ -119,13 +122,13 @@ def tcp_syn_checker(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst,
                 Database_get2insert.insert_Report(temp)
                 remark_scan_host_tcp_alerted.append(pkt[IP].src)
                 RS_connector.remote_shell(4, rsh[1], '')
-                if rsh[0] == srcip and rsh[1] == l2_src_mac:
-                    checkhost = True
-                if pkt[TCP].dport in rsh:
-                    continue
-                else:
-                    rsh.append(pkt[TCP].dport)
-                    break
+            if rsh[0] == srcip and rsh[1] == l2_src_mac:
+                checkhost = True
+            if pkt[TCP].dport in rsh:
+                continue
+            else:
+                rsh.append(pkt[TCP].dport)
+                break
         if checkhost is False:
             remark_scan_host_tcp.append([srcip, l2_src_mac, pkt[TCP].dport])
 
@@ -143,7 +146,9 @@ def tcp_scan_checker2db2q(srcip, dstip, srcmac, dstmac, type, message, q2, lock,
 
 
 def tcp_scan_knew(ip, str1, tcp_scan_method_alerted):
+    #print 'c', tcp_scan_method_alerted
     for tsma in tcp_scan_method_alerted:
+        #print tsma
         if tsma[0] == ip:
             if str1 in tsma:
                 return False
@@ -153,6 +158,7 @@ def tcp_scan_knew(ip, str1, tcp_scan_method_alerted):
 def tcp_scan_checker(q2, lock, datetime, printdatetime, fnum,
                      remark_scan_host_tcp, remark_scan_host_tcp_alerted,
                      tcp_stack, tcp_scan_method_alerted):
+    #print 'b',tcp_scan_method_alerted
     for rsh in tcp_stack:
         #print rsh
 

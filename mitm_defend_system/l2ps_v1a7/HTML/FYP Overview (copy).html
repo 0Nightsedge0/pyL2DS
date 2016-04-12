@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Untitled Document</title>
+<title>L2PS</title>
 <!-- <link href="css/bootstrap.css" rel="stylesheet" type="text/css"> -->
 <link href="css/bootstrap-3.3.6.css" rel="stylesheet" type="text/css">
 <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
@@ -15,7 +15,7 @@
 <![endif]-->
 </head>
 
-<body>
+<body style="padding-bottom: 70px">
 <script src="js/jquery-1.11.3.min.js"></script>
 <!-- <script src="js/bootstrap.js"></script> -->
 <script src="js/bootstrap-3.3.6.js"></script>
@@ -27,11 +27,16 @@
       <span class="sr-only">Toggle navigation</span>
       <span class="icon-bar"></span>
       <span class="icon-bar"></span><span class="icon-bar"></span></button>
-      <h4><b><em><a class="navbar-brand" href="FYP Home.html">Layer 2 Prevention System</a></em></b></h4></div>
+      <h4><b><em><a class="navbar-brand" href="FYP Home.html">Layer 2 Prevention System</a></em></b></h4>
+    </div>
     <!-- Collect the nav links, forms, and other content for toggling -->
-    
-     
-    
+    <div class="collapse navbar-collapse" id="defaultNavbar1">
+      <ul class="nav navbar-nav">
+              
+   
+       
+      </ul>
+    </div>
     <!-- /.navbar-collapse -->
   </div>
   <!-- /.container-fluid -->
@@ -46,49 +51,49 @@
   <li role="presentation"><a href="FYP Reports.html">Reports</a></li>
   </ul>
 
+
 <ol class="breadcrumb">
   <li><a href="#"><span class="glyphicon glyphicon-home" aria-hidden="true"></span> Home</a></li>
   <li><a href="#">Overview</a></li>
-  <li class="active">Today</li>
+  <li class="active">All</li>
 </ol>
 
 
 <div class="jumbotron">
-<h1 style="padding:0px 40px;">Overview Today</h1>
+<h1 style="padding:0px 40px;">Overview</h1>
 <hr />
 <nav style="padding: 0px 40px;">
   <!-- Add class .pagination-lg for larger blocks or .pagination-sm for smaller blocks-->
   <ul class="pagination">
-    <li><a href="FYP Overview.html">All</a></li>
+    <li class="active"><a href="FYP Overview.html">All</a></li>
     <li><a href="FYP Overview-ThisMouth.html">Month</a></li>
-    <li class="active"><a href="FYP Overview-Today.html">Today</a></li>
+    <li><a href="FYP Overview-Today.html">Today</a></li>
   </ul>
 </nav>
-
 
 <div id="show_table" style="padding: 10px 40px;">
 <table width="1000" border="3">
   <tr>
-    <td align="center"><span style="font-weight:bold"><font size="5">All Traffic Today</font> </span></td>
-    <td align="center"><span style="font-weight:bold"><font size="5">All Detect Attacks Today</font></span></td>
+    <td align="center"><span style="font-weight:bold"><font size="5">All Traffic</font> </span></td>
+    <td align="center"><span style="font-weight:bold"><font size="5">All Detect Attacks</font></span></td>
   </tr>
 
   <tr>
-    <td><img src="GraphPhoto/Traffic_log_today.png" alt="Placeholder image" width="500"></td>
-    <td><img src="GraphPhoto/Detect_attacks_today.png" alt="Placeholder image" width="500"></td>
+    <td><img src="GraphPhoto/Traffic_log_all.png" alt="Placeholder image" width="500"></td>
+    <td><img src="GraphPhoto/Detect_attacks_all.png" alt="Placeholder image" width="500"></td>
   </tr>
 
   <tr>
-    <td align="center"><span style="font-weight:bold"><font size="5">Top 5 Protocol of Traffic Today</font> </span></td>
-    <td align="center"><span style="font-weight:bold"><font size="5">Attacks and safe traffic Today</font></span></td>
+    <td align="center"><span style="font-weight:bold"><font size="5">Top 5 Protocol of Traffic</font> </span></td>
+    <td align="center"><span style="font-weight:bold"><font size="5">Attacks and safe traffic</font></span></td>
   </tr>
 
   <tr>
-    <td><img src="GraphPhoto/Protocol_log_today.png" alt="Placeholder image" width="500"></td>
-    <td><img src="GraphPhoto/Attack_per_Traffic_today.png"  alt="Placeholder image" width="500"></td>
+    <td><img src="GraphPhoto/Protocol_log_all.png" alt="Placeholder image" width="500"></td>
+    <td><img src="GraphPhoto/Attack_per_Traffic_all.png"  alt="Placeholder image" width="500"></td>
   </tr>
 
-  <tr>
+<tr>
     <td>
       <span> Details: </span>
       <ul>
@@ -110,15 +115,6 @@
 
 </table>
 
-
 </div>
-
-</div>
-
-
-
-
-
-
 </body>
 </html>

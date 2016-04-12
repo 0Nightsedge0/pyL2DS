@@ -192,5 +192,3 @@ def get_Report_list():
 
     except MySQLdb.Error as e:
         return "Error %d: %s" % (e.args[0], e.args[1])
-
-print insert_IPMAC('IM00000005', '10.20.9.191', '00:0C:29:0e:d8:91', 'D000000004')
