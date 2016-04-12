@@ -16,7 +16,7 @@ def insert_Log(pkt):
             db.commit()
         db.close()
     except MySQLdb.Error as e:
-        print("Error %d: %s" % (e.args[0], e.args[1]))
+        return "Error %d: %s" % (e.args[0], e.args[1])
 
 
 def insert_Report(pkt):
@@ -32,7 +32,7 @@ def insert_Report(pkt):
         db.commit()
         db.close()
     except MySQLdb.Error as e:
-        print("Error %d: %s" % (e.args[0], e.args[1]))
+        return "Error %d: %s" % (e.args[0], e.args[1])
 
 
 def insert_Gateway(gateway_ip, gateway_mac):
@@ -56,7 +56,22 @@ def insert_Device(device_id, device_type, device_name, gateway_ip):
         db = MySQLdb.connect(host="localhost", user="root", passwd="root", db="mydb")
         cursor = db.cursor()
         sql = "Insert into Device_Table(Device_ID,Device_Type,Device_Name,Gateway_IP) " \
-              "values('1','2','3','192.168.0.1')" % (device_id, device_type, device_name, gateway_ip)
+              "values('%s','%s','%s','%s')" % (device_id, device_type, device_name, gateway_ip)
+        #print sql
+        cursor.execute(sql)
+        db.commit()
+        db.close()
+        return "Query OK"
+    except MySQLdb.Error as e:
+        return "Error %d: %s" % (e.args[0], e.args[1])
+
+
+def insert_IPMAC(IPMAC_ID, IP, MAC, Device_id):
+    try:
+        db = MySQLdb.connect(host="localhost", user="root", passwd="root", db="mydb")
+        cursor = db.cursor()
+        sql = "Insert into IP_MAC_Table(IP_MAC_ID,IP_address,MAC_address,Device_ID) " \
+              "values('%s','%s','%s','%s');" % (IPMAC_ID, IP, MAC, Device_id)
         #print sql
         cursor.execute(sql)
         db.commit()
@@ -95,6 +110,7 @@ def get_last_Device():
     except MySQLdb.Error as e:
         return "Error %d: %s" % (e.args[0], e.args[1])
 
+
 def get_last_IMT():
     try:
         db = MySQLdb.connect(host="localhost", user="root", passwd="root", db="mydb")
@@ -125,7 +141,7 @@ def get_Device2address_list():
         return device
 
     except MySQLdb.Error as e:
-        print("Error %d: %s" % (e.args[0], e.args[1]))
+        return "Error %d: %s" % (e.args[0], e.args[1])
 
 
 def get_Log_list():
@@ -151,7 +167,7 @@ def get_Log_list():
         return logs
 
     except MySQLdb.Error as e:
-        print("Error %d: %s" % (e.args[0], e.args[1]))
+        return "Error %d: %s" % (e.args[0], e.args[1])
 
 
 def get_Report_list():
@@ -175,4 +191,6 @@ def get_Report_list():
         return report
 
     except MySQLdb.Error as e:
-        print("Error %d: %s" % (e.args[0], e.args[1]))
+        return "Error %d: %s" % (e.args[0], e.args[1])
+
+print insert_IPMAC('IM00000005', '10.20.9.191', '00:0C:29:0e:d8:91', 'D000000004')

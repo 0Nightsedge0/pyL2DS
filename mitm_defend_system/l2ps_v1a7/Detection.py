@@ -4,6 +4,7 @@ from scapy.all import *
 '''internal modules'''
 import Database_get2insert
 import Detection_tcpudp_scan
+import RS_connector
 
 ''' scanning detection '''
 tcp_stack = []# [[IP src, IP dst, dst port, flag],...]
@@ -18,11 +19,19 @@ dnscountpers = [] #dns
 ''' freq use counter '''
 fnum = 0
 
+def block_port():
+    import RS_connector
+
+
 # packet detection
 def arp_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gateway,
                   q2, lock, op, datetime, printdatetime, num):
     alert = None
     #print "gateway: ", gateway
+
+    if gateway:
+        return 0
+
     if len(gateway) == 0:
         return 0
 
@@ -54,11 +63,15 @@ def arp_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gatew
                 dstip, l2_src_mac, l2_dst_mac, 'ARP', alert]
         #print temp
         Database_get2insert.insert_Report(temp)
+        RS_connector.remote_shell(4, l2_src_mac, '')
 
 
 def dhcp_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gateway,
                    q2, lock, datetime, printdatetime, num, device):
     #print pkt[0][3][0].show()
+    if gateway:
+        return 0
+
     if len(gateway) == 0:
         return 0
 
@@ -87,11 +100,15 @@ def dhcp_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gate
                 dstip, l2_src_mac, l2_dst_mac, 'DNS', alert]
         # print temp
         Database_get2insert.insert_Report(temp)
+        RS_connector.remote_shell(4, l2_src_mac, '')
 
 
 def dns_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gateway,
                   q2, lock, datetime, printdatetime, num, device):
     #print pkt[0].show()
+    if gateway:
+        return 0
+
     if len(gateway) == 0:
         return 0
 
@@ -111,10 +128,14 @@ def dns_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gatew
                 dstip, l2_src_mac, l2_dst_mac, 'DNS', alert]
     # print temp
     Database_get2insert.insert_Report(temp)
+    RS_connector.remote_shell(4, l2_src_mac, '')
 
 
 def icmp_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gateway,
                    q2, lock, datetime, printdatetime, num, device):
+    if gateway:
+        return 0
+
     if len(gateway) == 0:
         return 0
 
@@ -136,6 +157,7 @@ def icmp_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gate
                 dstip, l2_src_mac, l2_dst_mac, 'ICMP', alert]
         #print temp
         Database_get2insert.insert_Report(temp)
+        RS_connector.remote_shell(4, l2_src_mac, '')
     else:
         return 0
 

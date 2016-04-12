@@ -3,6 +3,7 @@ __author__ = 'TKS'
 from scapy.all import *
 '''internal modules'''
 import Database_get2insert
+import RS_connector
 
 common_ports = [1, 3, 4, 6, 7, 9, 13, 17, 19, 20, 21, 22, 23, 24, 25, 26, 30, 32, 33,
                 37, 42, 43, 49, 53, 70, 79, 80, 81, 82, 83, 84, 85, 88, 89, 90, 99,
@@ -109,7 +110,7 @@ def tcp_syn_checker(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst,
             if (len(rsh)-2) > tcp_port_knock_limit and not reported:
                 alert = "Source IP : %s Source MAC: %s TCP Knocked ports more than %d ports" % (pkt[IP].src, pkt[0].src, (len(rsh)-2))
                 lock.acquire()
-                q2.put([rsh[0], rsh[1], 'TCP knock port', alert])
+                q2.put([rsh[0], rsh[1], '', '', 'TCP knock port', alert])
                 #print alert
                 lock.release()
                 temp = [datetime+"%05d" % num, printdatetime, srcip,
@@ -117,8 +118,9 @@ def tcp_syn_checker(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst,
                 #print temp
                 Database_get2insert.insert_Report(temp)
                 remark_scan_host_tcp_alerted.append(pkt[IP].src)
-            if rsh[0] == srcip and rsh[1] == l2_src_mac:
-                checkhost = True
+                RS_connector.remote_shell(4, rsh[1], '')
+                if rsh[0] == srcip and rsh[1] == l2_src_mac:
+                    checkhost = True
                 if pkt[TCP].dport in rsh:
                     continue
                 else:
@@ -135,6 +137,7 @@ def tcp_scan_checker2db2q(srcip, dstip, srcmac, dstmac, type, message, q2, lock,
     lock.release()
     temp = [datetime+"F%04d" % num, printdatetime, srcip,
             dstip, srcmac, dstmac, 'TCP', message]
+    RS_connector.remote_shell(4, srcmac, '')
     #print temp
     Database_get2insert.insert_Report(temp)
 
@@ -168,6 +171,7 @@ def tcp_scan_checker(q2, lock, datetime, printdatetime, fnum,
                                                   'port: %s' % rsh[4], q2, lock, datetime, printdatetime, fnum)
                             tcp_scan_method_alerted.append([rsh[0], 'Version'])
                             fnum += 1
+                            RS_connector.remote_shell(4, rsh[1], '')
 
                     if tcp_scan_knew(rsh[0], 'SYN', tcp_scan_method_alerted):
                         #print '%s %s %s SYN SCAN!' % (rsh[0], rsh[1], rsh[2])
@@ -175,6 +179,7 @@ def tcp_scan_checker(q2, lock, datetime, printdatetime, fnum,
                                               'port: %s' % rsh[4], q2, lock, datetime, printdatetime, fnum)
                         tcp_scan_method_alerted.append([rsh[0], 'SYN'])
                         fnum += 1
+                        RS_connector.remote_shell(4, rsh[1], '')
                     break
                 # Connect Scan
                 if i+3 > len(rsh)-1:
@@ -186,6 +191,7 @@ def tcp_scan_checker(q2, lock, datetime, printdatetime, fnum,
                                               'port: %s' % rsh[4], q2, lock, datetime, printdatetime, fnum)
                         tcp_scan_method_alerted.append([rsh[0], 'Connect'])
                         fnum += 1
+                        RS_connector.remote_shell(4, rsh[1], '')
                     break
 
             # Any illegal Connection
@@ -198,6 +204,7 @@ def tcp_scan_checker(q2, lock, datetime, printdatetime, fnum,
                                                   'port: %s' % rsh[4], q2, lock, datetime, printdatetime, fnum)
                             tcp_scan_method_alerted.append([rsh[0], 'RST/FIN'])
                             fnum += 1
+                            RS_connector.remote_shell(4, rsh[1], '')
                         break
 
 
