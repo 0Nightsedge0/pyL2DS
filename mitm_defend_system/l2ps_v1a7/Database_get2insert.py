@@ -158,11 +158,11 @@ def get_Log_list():
         for i in result:
             #print i
             logs.append([i[0], i[1], i[2], i[3], i[4], i[5], i[6], i[7]])
-
+        '''
         print "------------------------Logs---------------------------"
         for i in logs:
             print i
-
+        '''
         db.close()
         return logs
 
@@ -182,11 +182,11 @@ def get_Report_list():
 
         for i in result:
             report.append([i[0], i[1], i[2], i[3], i[4], i[5], i[6], i[7]])
-
+        '''
         print "------------------------Logs---------------------------"
         for i in report:
             print i
-
+        '''
         db.close()
         return report
 

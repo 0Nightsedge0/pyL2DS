@@ -19,9 +19,6 @@ dnscountpers = [] #dns
 ''' freq use counter '''
 fnum = 0
 
-def block_port():
-    import RS_connector
-
 
 # packet detection
 def arp_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gateway,

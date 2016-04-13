@@ -97,6 +97,8 @@ def get_packet_type(pkt):
         if(IP in pkt[0]):
             #print "-> IP Packet"
             proto_type = "IP"
+            srcip = pkt[0][1].src
+            dstip = pkt[0][1].dst
 
             if(TCP in pkt[0]):
                 #print "->-> TCP Packet"
