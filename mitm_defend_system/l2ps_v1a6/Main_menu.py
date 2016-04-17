@@ -1,6 +1,6 @@
 __author__ = 'TKS'
 '''internal modules'''
-import L2PS_v1a5
+import L2PS_v1a6
 import Database_get2insert
 import Config
 import RS_connector
@@ -42,9 +42,9 @@ def Displayer(q, q2, q3):
         try:
             task = q.get(block=False)
             #print "Getter get", task
-            timer = optimer(task[9])
+            timer = optimer(task[10])
             clearscr()
-            print "-------------------Now data and time : %s --------------------" % (task[10])
+            print "-------------------Now data and time : %s --------------------" % (task[11])
             print "-------------------------Operation times : %s----------------------------" % (timer)
             displaycounting('ARP', task[0], task[1])
             displaycounting('ICMP', task[2], task[3])
@@ -115,7 +115,7 @@ def process_con():
     l3 = manager3.Lock()
     fn = sys.stdin.fileno()
 
-    ps0 = Process(target=L2PS_v1a5.main, args=(q, l, iface, q2, l2, q3))
+    ps0 = Process(target=L2PS_v1a6.main, args=(q, l, iface, q2, l2, q3))
     ps1 = Process(target=Displayer, args=(q, q2, q3))
     ps2 = Process(target=stop, args=(q3, fn, l3))
 
@@ -193,16 +193,16 @@ def display_iface(iface):
         isodd = True
 
     for i in range(0, end, 2):
-        striface = '|%-5s |IP address  : %-15s' % (iface[i], get_my_ipaddress(iface[i]))
-        striface += '\t\t'
-        striface += '| %-5s |IP address  : %-15s \n' % (iface[i+1], get_my_ipaddress(iface[i+1]))
-        striface += '|%-5s |MAC address : %-17s' % (" ", get_my_macaddress(iface[i]))
-        striface += '\t\t'
-        striface += '| %-5s |MAC address : %-17s \n' % (" ", get_my_macaddress(iface[i]))
+        striface = '|%-7s |IP address  : %-17s' % (iface[i], get_my_ipaddress(iface[i]))
+        striface += '\t'
+        striface += '| %-7s |IP address  : %-17s \n' % (iface[i+1], get_my_ipaddress(iface[i+1]))
+        striface += '|%-7s |MAC address : %-17s' % (" ", get_my_macaddress(iface[i]))
+        striface += '\t'
+        striface += '| %-7s |MAC address : %-17s \n' % (" ", get_my_macaddress(iface[i]))
     if isodd:
-        striface += '|%-5s |IP address  : %-15s \t\t|\n' % (iface[end], get_my_ipaddress(iface[end]))
-        striface += '|%-5s |MAC address : %-17s' % (" ", get_my_macaddress(iface[end]))
-        striface += '\t\t|'
+        striface += '|%-7s |IP address  : %-17s\t|\n' % (iface[end], get_my_ipaddress(iface[end]))
+        striface += '|%-7s |MAC address : %-17s' % (" ", get_my_macaddress(iface[end]))
+        striface += '\t|'
     return striface
 
 

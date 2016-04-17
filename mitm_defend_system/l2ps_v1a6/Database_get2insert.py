@@ -35,12 +35,33 @@ def insert_Report(pkt):
         print("Error %d: %s" % (e.args[0], e.args[1]))
 
 
-def insert_Gateway():
-    return 0
+def insert_Gateway(gateway_ip, gateway_mac):
+    try:
+        db = MySQLdb.connect(host="localhost", user="root", passwd="root", db="mydb")
+        cursor = db.cursor()
+
+        sql ="Insert into Default_Gateway_Table(Gateway_ID,Gateway_IP_Address,Gateway_MAC_Address) " \
+             "values('%s','%s')" % (gateway_ip, gateway_mac)
+        #print sql
+        cursor.execute(sql)
+        db.commit()
+        db.close()
+    except MySQLdb.Error as e:
+        print("Error %d: %s" % (e.args[0], e.args[1]))
 
 
-def insert_Device():
-    return 0
+def insert_Device(device_id, device_type, device_name, gateway_ip):
+    try:
+        db = MySQLdb.connect(host="localhost", user="root", passwd="root", db="mydb")
+        cursor = db.cursor()
+        sql = "Insert into Device_Table(Device_ID,Device_Type,Device_Name,Gateway_IP) " \
+              "values('1','2','3','192.168.0.1')" % (device_id, device_type, device_name, gateway_ip)
+        #print sql
+        cursor.execute(sql)
+        db.commit()
+        db.close()
+    except MySQLdb.Error as e:
+        print("Error %d: %s" % (e.args[0], e.args[1]))
 
 
 def get_Gateway():
@@ -90,7 +111,10 @@ def get_Log_list():
         cursor.execute("select * from Logs_Table")
         result = cursor.fetchall()
 
+        #print result
+
         for i in result:
+            #print i
             logs.append([i[0], i[1], i[2], i[3], i[4], i[5], i[6], i[7]])
 
         print "------------------------Logs---------------------------"
@@ -113,8 +137,13 @@ def get_Report_list():
         cursor.execute("select * from Report_Table")
         result = cursor.fetchall()
 
+
         for i in result:
             report.append([i[0], i[1], i[2], i[3], i[4], i[5], i[6], i[7]])
+
+        print "------------------------Logs---------------------------"
+        for i in report:
+            print i
 
         db.close()
         return report

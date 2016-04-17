@@ -1,8 +1,9 @@
 __author__ = 'TKS'
 
 '''external modules''' '''build-in or download'''
+import logging
+logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 from scapy.all import *
-import numpy as np
 import time
 from multiprocessing import Process
 from threading import Thread
@@ -14,6 +15,14 @@ import Config
 packets = [] #store pkts (cache) *clear every ten seconds and insert to database
 oripackets = [] #store original packet
 gateway = [] #store gateway
+device = [] #store device info
+
+''' remark the tcp and udp knock port '''
+remark_scan_host_tcp = []# [IP, MAC, port ...]
+remark_scan_host_tcp_alerted = [] # alerted ip
+remark_scan_host_udp = []# [IP, MAC, port ...]
+remark_scan_host_udp_alerted = [] # alerted ip
+
 
 '''store count per s for arp, icmp, dhcp, dns '''
 arpcount = 0
@@ -36,6 +45,8 @@ printdatetime = ""
 '''store setting or baseline'''
 optime = 1
 freq_baseline = 10
+tcp_port_knock_limit = 300
+udp_port_knock_limit = 300
 
 
 def get_packet_type(pkt):
@@ -86,6 +97,8 @@ def get_packet_type(pkt):
         if(IP in pkt[0]):
             #print "-> IP Packet"
             proto_type = "IP"
+            srcip = pkt[0][1].src
+            dstip = pkt[0][1].dst
 
             if(TCP in pkt[0]):
                 #print "->-> TCP Packet"
@@ -127,8 +140,8 @@ def get_packet_type(pkt):
         #print "###############################################################################\n"
 
 
-def sniffing(q, lock, iface, q2, lock2, q3, optime, freq_basline):
-    operation_times = 0
+def sniffing(q, lock, iface, q2, lock2, q3, optime, freq_basline, tcp_port_knock_limit, udp_port_knock_limit):
+    operation_times = remark_clean_time_tcp = remark_clean_time_udp = 0
 
     signal = False      #control signal
 
@@ -154,11 +167,14 @@ def sniffing(q, lock, iface, q2, lock2, q3, optime, freq_basline):
 
         if signal is True:
             break
-
         if packets:
             thd_log = Thread(target=Database_get2insert.insert_Log, args=(packets, ))
             thd_detector = Thread(target=Detection.detector, args=(oripackets, q2, lock2, gateway, datetime,
-                                                                   printdatetime, freq_baseline, optime))
+                                                                   printdatetime, freq_baseline, operation_times,
+                                                                   tcp_port_knock_limit, udp_port_knock_limit,
+                                                                   remark_scan_host_tcp, remark_scan_host_tcp_alerted,
+                                                                   remark_scan_host_udp, remark_scan_host_udp_alerted,
+                                                                   device))
             thd_log.start()
             thd_detector.start()
             '''
@@ -173,6 +189,15 @@ def sniffing(q, lock, iface, q2, lock2, q3, optime, freq_basline):
         #print datetime+"%04d" % (countpers)
         #print "count = ", count
         operation_times += optime
+        remark_clean_time_tcp += optime
+        remark_clean_time_udp += optime
+        # every x second clean remark once
+        if remark_clean_time_tcp > 300:
+            remark_scan_host_tcp_alerted[:] = remark_scan_host_tcp[:] = []
+            remark_clean_time_tcp = 0
+        if remark_clean_time_udp > 600:
+            remark_scan_host_udp[:] = remark_scan_host_udp_alerted[:] = []
+            remark_clean_time_udp = 0
 
 
 def getresult(arpcount, totalarp, icmpcount, totalicmp, dhcpcount, totaldhcp, dnscount, totaldns, count, countpers, times, printdatetime, q, lock, q3):
@@ -198,13 +223,18 @@ def getnowdatetime():
 
 
 def core_setting():
-    setting = Config.readcoresetting()
+    setting = Config.read_core_setting()
     global optime, freq_baseline
     for s in setting:
         if s[0] == 'optime':
             optime = int(s[1])
         if s[0] == 'frequency_baseline':
             freq_baseline = int(s[1])
+        if s[0] == 'tcp_port_knock_limit':
+            tcp_port_knock_limit = int(s[1])
+        if s[0] == 'tcp_port_knock_limit':
+            tcp_port_knock_limit = int(s[1])
+
 
 
 def main(q, l, iface, q2, l2, q3):
@@ -213,5 +243,7 @@ def main(q, l, iface, q2, l2, q3):
     time.sleep(0.5)
     global gateway
     gateway = Database_get2insert.get_Gateway()
+    global device
+    gateway = Database_get2insert.get_Device2address_list()
     core_setting()
-    sniffing(q, l, iface, q2, l2, q3, optime, freq_baseline)
+    sniffing(q, l, iface, q2, l2, q3, optime, freq_baseline, tcp_port_knock_limit, udp_port_knock_limit)

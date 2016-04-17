@@ -24,10 +24,10 @@ def table_creating(tablename):
         "PRIMARY KEY (`Device_ID`),"
         "CONSTRAINT `Gateway_IP_fk`"
         " FOREIGN KEY (`Gateway_IP`)"
-        "  REFERENCES `mydb`.`Default_Gateway_Table` (`Gateway_IP_Address`))"
+        "  REFERENCES `mydb`.`Default_Gateway_Table` (`Gateway_IP_Address`),"
         "CONSTRAINT `Device_Type_check`"
         " CHECK (`Device_Type` in ('PC','DHCP','DNS','WEB','SERVER','ROUTER','SWITCH'))"
-        "ENGINE = InnoDB;"
+        ")ENGINE = InnoDB;"
     }
     createsql['Default_Gateway_Table'] = {
         "CREATE TABLE IF NOT EXISTS `mydb`.`Default_Gateway_Table` ("
