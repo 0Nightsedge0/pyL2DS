@@ -23,6 +23,9 @@ def block_port(remote, mac, mactable):
 
 
 def open_port(remote, port):
+
+    port = 'fa0/' + str(port)
+
     command = 'conf t\n'
     #print command
     remote.send(command)
@@ -108,51 +111,52 @@ def ssh_mode(remote):
 
 
 def remote_shell(signal, srcmac, int_port):
-    ip = '192.168.0.1'
+    ip = '10.20.10.4'
     port = 22
-    username = 'cisco'
-    password = 'cisco'
+    username = 'SSHadmin'
+    password = 'ciscosshpass'
 
     remote_conn = paramiko.SSHClient()
     #print remote_conn
 
     remote_conn.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    try:
-        remote_conn.connect(ip, port=port, username=username, password=password, look_for_keys=False, allow_agent=False)
-        remote = remote_conn.invoke_shell()
-        output = remote.recv(1000)
-        #print output
+    #try:
+    remote_conn.connect(ip, port=port, username=username, password=password, look_for_keys=False, allow_agent=False)
+    remote = remote_conn.invoke_shell()
+    output = remote.recv(1000)
+    #print output
 
-        ''' no more! '''
-        remote.send("terminal length 0\n")
+    ''' no more! '''
+    remote.send("terminal length 0\n")
 
-        if signal == 1:
-            ip_int_bri = command_show_ip_interface_brief(remote)
-            return ip_int_bri
-        elif signal == 2:
-            mac_table = command_show_mac_address_table(remote)
-            return mac_table
-        elif signal == 3:
-            run_config = command_show_run(remote)
-            return run_config
-        elif signal == 4:
-            mac_table = command_show_mac_address_table(remote)
-            block = block_port(remote, srcmac, mac_table)
-        elif signal == 5:
-            mac_table = command_show_mac_address_table(remote)
-            openport = open_port(remote, int_port)
-        elif signal == 6:
-            ssh_mode(remote)
+    if signal == 1:
+        ip_int_bri = command_show_ip_interface_brief(remote)
+        return ip_int_bri
+    elif signal == 2:
+        mac_table = command_show_mac_address_table(remote)
+        return mac_table
+    elif signal == 3:
+        run_config = command_show_run(remote)
+        return run_config
+    elif signal == 4:
+        mac_table = command_show_mac_address_table(remote)
+        block = block_port(remote, srcmac, mac_table)
+    elif signal == 5:
+        mac_table = command_show_mac_address_table(remote)
+        openport = open_port(remote, int_port)
+    elif signal == 6:
+       ssh_mode(remote)
 
-        remote.send("end\n")
-        remote.send("exit\n")
+    remote.send("end\n")
+    remote.send("exit\n")
 
-        remote.close()
-        remote_conn.close()
-    except IOError as error:
-        return error
-    return 0
+    remote.close()
+    remote_conn.close()
+    #except IOError as error:
+     #   return error
 
+#print 'hi'
+#remote_shell(5, '', 4)
 
 def remote_menu():
     print "--------Layer 2 Prevention System--------"

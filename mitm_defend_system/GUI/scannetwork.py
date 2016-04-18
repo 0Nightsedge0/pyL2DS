@@ -1,14 +1,12 @@
 import nmap
-import os, Database_get2insert
+import  os,Database_get2insert
 
 nm = nmap.PortScanner()
-
-
 def pingscan():
     iface = os.popen('ls /sys/class/net/')
     iface = iface.read()
     iface = iface.split()
-    script = 'ifconfig %s| grep "inet addr"| cut -d: -f2 | cut -d" " -f1' % iface[0]
+    script = 'ifconfig %s |grep "inet "|cut -d" " -f10' % iface[0]
     ip = os.popen(script)
     ip = ip.read()
     if len(ip) == 0:
@@ -22,8 +20,6 @@ def pingscan():
     for host, status in enumerate(hosts_list):
         livehost.append(status[0])
     return livehost
-
-
 def scanHost():
     ipmacos = []
     livehost = pingscan()
@@ -32,7 +28,7 @@ def scanHost():
 
     for i, host in enumerate(livehost):
         host =str(host) + "/32"
-        nm.scan(host, arguments='-O -n -PE -PA')
+        nm.scan(host, arguments='-O')
         for h in nm.all_hosts():
 
             if 'mac' in nm[h]['addresses'] and len(nm[h]['osmatch']) > 0 :
@@ -50,20 +46,19 @@ def scanHost():
 
     return ipmacos
 
-
 def aliveHost():
     device = Database_get2insert.get_Device2address_list()
     #print device
-    result_host = []
-    result_status = []
+    result =[]
+
     for i, host in enumerate(device):
         hostlist = str(host[4]) + "/32"
         nm.scan(hosts=hostlist, arguments='-n -sP -PE -PA')
         hosts_list = [(x, nm[x]['status']['state']) for x in nm.all_hosts()]
         for host, status in enumerate(hosts_list):
-                result_host.append(status[0])
-                result_status.append(status[1])
-    return result_host , result_status
+                result.append(status)
+
+    return  result
 
 #print scanHost()
 #print aliveHost()

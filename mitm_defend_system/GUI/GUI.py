@@ -338,7 +338,7 @@ class Ui_StackedWidget(QStackedWidget):
         self.label_bottom = QLabel(self.main)
         pl_t = pl.col_info()
         self.label_bottom.setText(pl_t)
-        self.label_bottom.setGeometry(QRect(85, 400, 850, 150))
+        self.label_bottom.setGeometry(QRect(40, 400, 960, 155))
         self.label_bottom.setStyleSheet("color: rgb(173,101,95);"
                                         "font-size:15px;"
                                         "font-weight: bold;"
@@ -614,20 +614,14 @@ class Ui_StackedWidget(QStackedWidget):
         StackedWidget.addWidget(self.configPage)
 
         def gethostalive():
-            '''addr = [["192.168.0.1", "up"],["192.168.0.2", "down"],["192.168.0.3", "up"]
-                    ,["192.168.0.4", "down"],["192.168.0.5", "up"],["192.168.0.6", "up"],["192.168.0.7", "up"]]
-            for row,item in enumerate(addr):
-                for col,stat in enumerate(item):
-                    newitem = QTableWidgetItem(stat)
-                    self.NetStaTable.setItem(row,col,newitem)
-                if row < len(addr)-1:
-                    self.NetStaTable.insertRow(self.NetStaTable.rowCount())'''
             host = scannetwork.aliveHost()
             for i,record in enumerate(host):
+                print record
                 for k,item in enumerate(record):
+                    print item
                     newitem = QTableWidgetItem(item)
                     self.NetStaTable.setItem(i,k,newitem)
-                if i < len(host):
+                if i < len(host)-1:
                     self.NetStaTable.insertRow(self.NetStaTable.rowCount())
 
         def updateTree_database():
@@ -698,12 +692,14 @@ class Ui_StackedWidget(QStackedWidget):
 
 
     def updateTree_status(self):
-        #list = RS_connector.remote_shell(1,"","")
+        list = RS_connector.remote_shell(1,"","")
         l = []
         self.onbutt2 = QPushButton("ON2")
         self.onbutt = []
-        list2 = [["fa0/0","test","test","test"],["fa0/1","test","test","test"],["fa0/2","test","test","test"]]
-        for i,item in enumerate(list2):
+        self.mapper = QSignalMapper(self)
+        print list
+        #list2 = [["fa0/0","test","test","test"],["fa0/1","test","test","test"],["fa0/2","test","test","test"]]
+        for i,item in enumerate(list):
             item_2 = QTreeWidgetItem(item)
             l.append(item_2)
             self.StatusTree.setColumnWidth(0,155)
@@ -711,17 +707,26 @@ class Ui_StackedWidget(QStackedWidget):
             self.StatusTree.setColumnWidth(3,80)
         self.StatusTree.addTopLevelItems(l)
         for i in range(0,len(l)):
+
             a = QPushButton("ON")
             self.onbutt.append(a)
-            print i
             self.StatusTree.setItemWidget(l[i],4,self.onbutt[i])
-        self.btconnect()
+            self.connect(self.onbutt[i], SIGNAL("clicked()"), self.mapper, SLOT("map()"))
+            if list[i][2] == 'up':
+                self.mapper.setMapping(self.onbutt[i],i+70)
+        self.connect(self.mapper,SIGNAL("mapped(int)"),self.configSwitchslot)
+        #self.btconnect()
     def btconnect(self):
-        for i in range(0,len(self.onbutt)):
+        for i in range(0, len(self.onbutt)):
             self.onbutt[i].clicked.connect(self.configSwitchslot)
 
-    def configSwitchslot(self):
-        print "sucessful!"
+    def configSwitchslot(self,num):
+
+        if num >70:
+            RS_connector.remote_shell((4,"",num-70))
+        else:
+            RS_connector.remote_shell(5,"",num)
+
     def scanHost(self):
         '''message = QDialog()
         message.setParent(self.configPage,Qt.Popup)
@@ -991,7 +996,7 @@ class ChildWid(QWidget):
                 self.graph.stop()'''
             self.task = q.get(block=False)
             self.graph.settask(self.task)
-            print self.task
+            #print self.task
             header = "-------------------Now data and time : %s --------------------\n" % self.task[11]
             header2 = "-------------------------Operation times : %s seconds---------------------------" % self.task[10]
             body = "\nNumber of      ARP packets per second: %6s |  Total      ARP packets: %6s \n" % (self.task[0], self.task[1])
@@ -1005,13 +1010,13 @@ class ChildWid(QWidget):
 
         try:
             self.alert = q2.get(block=False)
-            print self.alert
+            #print self.alert
             alertMsg = QMessageBox()
             alertMsg.setIcon(QMessageBox.Warning)
             alertMsg.setWindowTitle("Warning: " + self.alert[4])
             alertMsg.setText("Source IP:" + self.alert[0] +
                              " \tType: " + self.alert[4] +
-                             "\nSource Mac: " + self.alert[2])
+                             "\nSource Mac: " + self.alert[1])
             alertMsg.setInformativeText("Message: " + self.alert[5])
             alertMsg.exec_()
             #signal = q3.get(block=False)

@@ -154,6 +154,7 @@ def display_banner():
 def get_my_macaddress(iface):
     import os
     try:
+        #print iface
         script = 'ifconfig %s| grep ether| cut -d" " -f10' % iface
         ip = os.popen(script)
         ip = ip.read()
@@ -186,19 +187,23 @@ def display_iface(iface):
     isodd = False
 
     length = len(iface)
+    print length
     if length % 2 == 0:
         end = length
     else:
         end = length-1
         isodd = True
 
+    print end
+    print iface[0],iface[1],iface[2]
     for i in range(0, end, 2):
+        print iface[i],i
         striface = '|%-7s |IP address  : %-17s' % (iface[i], get_my_ipaddress(iface[i]))
         striface += '\t'
         striface += '| %-7s |IP address  : %-17s \n' % (iface[i+1], get_my_ipaddress(iface[i+1]))
         striface += '|%-7s |MAC address : %-17s' % (" ", get_my_macaddress(iface[i]))
         striface += '\t'
-        striface += '| %-7s |MAC address : %-17s \n' % (" ", get_my_macaddress(iface[i]))
+        striface += '| %-7s |MAC address : %-17s \n' % (" ", get_my_macaddress(iface[i+1]))
     if isodd:
         striface += '|%-7s |IP address  : %-17s\t|\n' % (iface[end], get_my_ipaddress(iface[end]))
         striface += '|%-7s |MAC address : %-17s' % (" ", get_my_macaddress(iface[end]))

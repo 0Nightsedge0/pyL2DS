@@ -13,6 +13,7 @@ def get_my_macaddress(iface):
             return None
         ip = ip.strip()
         ip = ip.rstrip('\n')
+        print ip
         return ip
     except:
         return None
@@ -51,15 +52,15 @@ def col_info():
         isodd = True
 
     for i in range(0, end, 2):
-        striface = '|%-7s |IP address  : %-17s' % (iface[i], get_my_ipaddress(iface[i]))
+        striface = '|%-15s |IP address  : %-17s' % (iface[i], get_my_ipaddress(iface[i]))
         striface += '\t'
-        striface += '| %-7s |IP address  : %-17s \n' % (iface[i+1], get_my_ipaddress(iface[i+1]))
-        striface += '|%-7s |MAC address : %-17s' % (" ", get_my_macaddress(iface[i]))
+        striface += '| %-15s |IP address  : %-17s \n' % (iface[i+1], get_my_ipaddress(iface[i+1]))
+        striface += '|%-15s |MAC address : %-17s' % (" ", get_my_macaddress(iface[i]))
         striface += '\t'
-        striface += '| %-7s |MAC address : %-17s \n' % (" ", get_my_macaddress(iface[i]))
+        striface += '| %-15s |MAC address : %-17s \n' % (" ", get_my_macaddress(iface[i+1]))
     if isodd:
-        striface += '|%-7s |IP address  : %-17s\t|\n' % (iface[end], get_my_ipaddress(iface[end]))
-        striface += '|%-7s |MAC address : %-17s' % (" ", get_my_macaddress(iface[end]))
+        striface += '|%-15s |IP address  : %-17s\t|\n' % (iface[end], get_my_ipaddress(iface[end]))
+        striface += '|%-15s |MAC address : %-17s' % (" ", get_my_macaddress(iface[end]))
         striface += '\t|'
     return s + striface
 

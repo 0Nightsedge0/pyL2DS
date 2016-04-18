@@ -236,7 +236,6 @@ def core_setting():
             tcp_port_knock_limit = int(s[1])
 
 
-
 def main(q, l, iface, q2, l2, q3):
     # get information from database and collect system info
     print "Collecting information ..."
