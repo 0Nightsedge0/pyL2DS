@@ -646,11 +646,11 @@ class Ui_StackedWidget(QStackedWidget):
 
         def switchToMain():
             self.setCurrentWidget(self.main)
+
         def switchToLog():
             try:
                 Report_creator.main()
             except Exception, e:
-                print e
                 errormeg = QMessageBox()
                 errormeg.setText("No Log and report in database")
                 errormeg.exec_()
@@ -694,10 +694,13 @@ class Ui_StackedWidget(QStackedWidget):
     def updateTree_status(self):
         list = RS_connector.remote_shell(1,"","")
         l = []
-        self.onbutt2 = QPushButton("ON2")
+
+        if self.StatusTree.topLevelItemCount() >= 26:
+            self.StatusTree.clear()
+        self.StatusTree.connect(self.StatusTree,SIGNAL("columnCountChanged()"),SLOT("clear()"))
         self.onbutt = []
         self.mapper = QSignalMapper(self)
-        print list
+
         #list2 = [["fa0/0","test","test","test"],["fa0/1","test","test","test"],["fa0/2","test","test","test"]]
         for i,item in enumerate(list):
             item_2 = QTreeWidgetItem(item)
@@ -708,24 +711,26 @@ class Ui_StackedWidget(QStackedWidget):
         self.StatusTree.addTopLevelItems(l)
         for i in range(0,len(l)):
 
-            a = QPushButton("ON")
+            a = QPushButton("On/Off")
             self.onbutt.append(a)
             self.StatusTree.setItemWidget(l[i],4,self.onbutt[i])
             self.connect(self.onbutt[i], SIGNAL("clicked()"), self.mapper, SLOT("map()"))
             if list[i][2] == 'up':
                 self.mapper.setMapping(self.onbutt[i],i+70)
+            else:
+                self.mapper.setMapping(self.onbutt[i],i)
         self.connect(self.mapper,SIGNAL("mapped(int)"),self.configSwitchslot)
-        #self.btconnect()
-    def btconnect(self):
-        for i in range(0, len(self.onbutt)):
-            self.onbutt[i].clicked.connect(self.configSwitchslot)
 
     def configSwitchslot(self,num):
+        print num
+        if num >=70:
+            RS_connector.remote_shell(7,"",num-69)
+            self.updateTree_status()
 
-        if num >70:
-            RS_connector.remote_shell((4,"",num-70))
         else:
-            RS_connector.remote_shell(5,"",num)
+            RS_connector.remote_shell(5,"",num+1)
+            time.sleep(1)
+            self.updateTree_status()
 
     def scanHost(self):
         '''message = QDialog()

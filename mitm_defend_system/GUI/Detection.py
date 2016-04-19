@@ -46,6 +46,7 @@ def arp_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gatew
                 alert += "%s is-at (response) %s Tell %s" % (srcip, hwsrc, dstip)
             break
         elif(srcip != g[0] and hwsrc == g[1]):
+            break
             alert = "Is IP of Device (MAC address: %s ) changed?" % hwsrc
             alert += "Past IP: %s  Now IP: %s" % (g[0], srcip)
             break
@@ -60,12 +61,12 @@ def arp_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gatew
                 dstip, l2_src_mac, l2_dst_mac, 'ARP', alert]
         #print temp
         Database_get2insert.insert_Report(temp)
-        RS_connector.remote_shell(4, l2_src_mac, '')
+        #RS_connector.remote_shell(4, l2_src_mac, '')
 
 
 def dhcp_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gateway,
                    q2, lock, datetime, printdatetime, num, device):
-    #print pkt[0][3][0].show()
+    #print pkt.show()
     if not gateway:
         return 0
 
@@ -78,13 +79,12 @@ def dhcp_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gate
         if d[3] == 'DHCP':
             DHCP.append([d[4], d[5]])
 
-
     # DHCP offer
     if pkt[0][3][0].op == 2:
         #print 'source IP : ', srcip
         #print 'source MAC: ', hwsrc
-        # print pkt[0][3][1].show()
-        # print pkt[0][3][1].options
+        #print pkt[0][3][1].show()
+        #print pkt[0][3][1].options
         #dhcplay = pkt[0][3][1].options
         if [srcip, hwsrc] in DHCP:
             return 0
@@ -97,7 +97,7 @@ def dhcp_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gate
                 dstip, l2_src_mac, l2_dst_mac, 'DNS', alert]
         # print temp
         Database_get2insert.insert_Report(temp)
-        RS_connector.remote_shell(4, l2_src_mac, '')
+        #RS_connector.remote_shell(4, l2_src_mac, '')
 
 
 def dns_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gateway,
@@ -125,7 +125,7 @@ def dns_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gatew
                 dstip, l2_src_mac, l2_dst_mac, 'DNS', alert]
     # print temp
     Database_get2insert.insert_Report(temp)
-    RS_connector.remote_shell(4, l2_src_mac, '')
+    #RS_connector.remote_shell(4, l2_src_mac, '')
 
 
 def icmp_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gateway,
@@ -154,7 +154,7 @@ def icmp_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gate
                 dstip, l2_src_mac, l2_dst_mac, 'ICMP', alert]
         #print temp
         Database_get2insert.insert_Report(temp)
-        RS_connector.remote_shell(4, l2_src_mac, '')
+        #RS_connector.remote_shell(4, l2_src_mac, '')
     else:
         return 0
 
@@ -236,8 +236,8 @@ def get_proto_type(num, pkt, gateway, q2, lock, datetime, printdatetime,
 
             if(DHCP in pkt[0]):
                 proto_type = "DHCP"
-                dhcp_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gateway,
-                               q2, lock, datetime, printdatetime, num, device)
+                #dhcp_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gateway,
+                #               q2, lock, datetime, printdatetime, num, device)
 
         if(UDP in pkt[0]):
             proto_type = "UDP"
@@ -249,8 +249,8 @@ def get_proto_type(num, pkt, gateway, q2, lock, datetime, printdatetime,
 
             if(DNS in pkt[0]):
                 proto_type = "DNS"
-                dns_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gateway,
-                              q2, lock, datetime, printdatetime, num, device)
+                #dns_detection(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst, gateway,
+                #              q2, lock, datetime, printdatetime, num, device)
 
         if(ICMP in pkt[0]):
             proto_type = "ICMP"

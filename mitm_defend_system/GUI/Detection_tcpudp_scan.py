@@ -95,6 +95,7 @@ common_ports = [1, 3, 4, 6, 7, 9, 13, 17, 19, 20, 21, 22, 23, 24, 25, 26, 30, 32
 def tcp_syn_checker(pkt, l2_dst_mac, l2_src_mac, dstip, srcip, hwsrc, hwdst,
                     q2, lock, datetime, printdatetime, num,
                     remark_scan_host_tcp, remark_scan_host_tcp_alerted, tcp_port_knock_limit):
+    return 0
     alert = None
     #print remark_scan_host_tcp
     #print not (remark_scan_host_tcp)
@@ -162,6 +163,25 @@ def tcp_scan_checker(q2, lock, datetime, printdatetime, fnum,
     for rsh in tcp_stack:
         #print rsh
 
+        #print 'SYN' in rsh and 'SA' in rsh and 'RA' in rsh
+        #print 'SYN' in rsh and 'SA' in rsh and 'RA' in rsh and 'ACK'
+
+        if 'SYN' in rsh and 'SA' in rsh and 'RA' in rsh:
+            tcp_scan_checker2db2q(rsh[0], rsh[1], rsh[2], rsh[3], 'TCP SCAN!?',
+                                  'port: %s' % rsh[4], q2, lock, datetime, printdatetime, fnum)
+            tcp_scan_method_alerted.append([rsh[0], 'TCP Scan'])
+            fnum += 1
+            RS_connector.remote_shell(4, rsh[1], '')
+            continue
+
+        if 'SYN' in rsh and 'SA' in rsh and 'RA' in rsh and 'ACK':
+            tcp_scan_checker2db2q(rsh[0], rsh[1], rsh[2], rsh[3], 'TCP SCAN!?',
+                                  'port: %s' % rsh[4], q2, lock, datetime, printdatetime, fnum)
+            tcp_scan_method_alerted.append([rsh[0], 'TCP Scan'])
+            fnum += 1
+            RS_connector.remote_shell(4, rsh[1], '')
+            continue
+
         for i in range(5, len(rsh)-1):
             #print i, len(rsh), rsh[i] == 'SYN' and rsh[i+1] == 'SA', i+2 > len(rsh)-1
 
@@ -169,7 +189,7 @@ def tcp_scan_checker(q2, lock, datetime, printdatetime, fnum,
                 # SYN SCAN
                 if i+2 > len(rsh)-1:
                     break
-                elif rsh[i+2] == 'RST' or rsh[i+2] == 'FIN':
+                elif rsh[i+2] == 'RST' or rsh[i+2] == 'FIN' or rsh[i+2] == 'RA':
                     # Version Scan
                     if len(rsh) > 10:
                         if rsh[i+3] == 'SYN' and rsh[i+4] == 'SA' and rsh[i+5] == 'ACK':
@@ -190,7 +210,7 @@ def tcp_scan_checker(q2, lock, datetime, printdatetime, fnum,
                 # Connect Scan
                 if i+3 > len(rsh)-1:
                     break
-                elif rsh[i+2] == 'ACK' and (rsh[i+3] == 'RA' or rsh[i+2] == 'RST' or rsh[i+2] == 'FIN'):
+                elif rsh[i+2] == 'ACK' and (rsh[i+3] == 'RA' or rsh[i+2] == 'RST' or rsh[i+2] == 'FIN' or rsh[i+2] == 'RA'):
                     if tcp_scan_knew(rsh[0], 'Connect', tcp_scan_method_alerted):
                         #print '%s %s %s Connect SCAN!' % (rsh[0], rsh[1], rsh[2])
                         tcp_scan_checker2db2q(rsh[0], rsh[1], rsh[2], rsh[3], 'Connect SCAN',

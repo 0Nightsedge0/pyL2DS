@@ -14,7 +14,7 @@ def pingscan():
     ip = ip.strip()
     ip = ip.rstrip('\n')
     print ip
-    nm.scan(hosts=ip+ "/24", arguments='-sP')
+    nm.scan(hosts="10.20.9.0/25", arguments='-sP')
     hosts_list = [(x, nm[x]['status']['state']) for x in nm.all_hosts()]
     livehost = []
     for host, status in enumerate(hosts_list):
@@ -28,7 +28,7 @@ def scanHost():
 
     for i, host in enumerate(livehost):
         host =str(host) + "/32"
-        nm.scan(host, arguments='-O')
+        nm.scan("10.20.9.0/25", arguments='-O')
         for h in nm.all_hosts():
 
             if 'mac' in nm[h]['addresses'] and len(nm[h]['osmatch']) > 0 :

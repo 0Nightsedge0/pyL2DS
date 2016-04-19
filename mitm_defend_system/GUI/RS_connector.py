@@ -2,6 +2,22 @@ import paramiko
 import time
 
 
+def block_port_iface(remote, port):
+    port = 'fa0/' + str(port)
+
+    command = 'conf t\n'
+    # print command
+    remote.send(command)
+    time.sleep(0.5)
+    command = 'int %s\n' % port
+    # print command
+    remote.send(command)
+    time.sleep(0.5)
+    command = 'shutdown\n'
+    # print command
+    remote.send(command)
+
+
 def block_port(remote, mac, mactable):
     port = None
 
@@ -54,6 +70,7 @@ def command_show_mac_address_table(remote):
                 s[1] = s[1].replace('.', '')
                 s[1] = ':'.join(a+b for a, b in zip(s[1][::2], s[1][1::2]))
                 result.append(s)
+    #print result
     return result
 
 
@@ -75,6 +92,12 @@ def command_show_ip_interface_brief(remote):
             result.append(s)
             #print result
             continue
+    #print result
+    for r in result:
+        if r[2] == 'administratively':
+            r[2] = r[2] + ' ' + r[3]
+            r.pop(3)
+    #print result
     return result
 
 
@@ -116,14 +139,18 @@ def remote_shell(signal, srcmac, int_port):
     username = 'SSHadmin'
     password = 'ciscosshpass'
 
+    #print 's:', signal
+
     remote_conn = paramiko.SSHClient()
     #print remote_conn
 
     remote_conn.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     #try:
     remote_conn.connect(ip, port=port, username=username, password=password, look_for_keys=False, allow_agent=False)
+    #print 'hi'
     remote = remote_conn.invoke_shell()
     output = remote.recv(1000)
+    #print 'hi'
     #print output
 
     ''' no more! '''
@@ -145,7 +172,9 @@ def remote_shell(signal, srcmac, int_port):
         mac_table = command_show_mac_address_table(remote)
         openport = open_port(remote, int_port)
     elif signal == 6:
-       ssh_mode(remote)
+        ssh_mode(remote)
+    elif signal == 7:
+        block_port_iface(remote, int_port)
 
     remote.send("end\n")
     remote.send("exit\n")
@@ -156,7 +185,7 @@ def remote_shell(signal, srcmac, int_port):
      #   return error
 
 #print 'hi'
-#remote_shell(5, '', 4)
+#remote_shell(1, '', '')
 
 def remote_menu():
     print "--------Layer 2 Prevention System--------"
