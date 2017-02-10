@@ -1,0 +1,165 @@
+mysql -u root -p
+//pw: root
+create database mydb;
+use mydb;
+
+------------------------------------------------------
+User
+
+CREATE TABLE IF NOT EXISTS `mydb`.`User` (
+  `UID` VARCHAR(10) NOT NULL,
+  `Username` VARCHAR(20) NOT NULL,
+  `Password` VARCHAR(30) NOT NULL,
+  PRIMARY KEY (`UID`, `Username`))
+ENGINE = InnoDB;
+
+------------------------------------------------------
+Default_Gateway_Table
+
+CREATE TABLE IF NOT EXISTS `mydb`.`Default_Gateway_Table` (
+  `Gateway_IP_Address` VARCHAR(16) NULL,
+  `Gateway_MAC_Address` VARCHAR(18) NOT NULL,
+  PRIMARY KEY (`Gateway_IP_Address`))
+ENGINE = InnoDB;
+
+Insert into Default_Gateway_Table(Gateway_IP_Address,Gateway_MAC_Address) values(
+'192.168.0.1','9c:d6:43:cb:d5:b2');
+
+------------------------------------------------------
+Device_Table
+
+CREATE TABLE IF NOT EXISTS `mydb`.`Device_Table` (
+  `Device_ID` VARCHAR(10) NOT NULL,
+  `Device_Type` VARCHAR(20) NULL,
+  `Device_Name` VARCHAR(60) NULL,
+  `Gateway_IP` VARCHAR(16) NULL,
+  PRIMARY KEY (`Device_ID`),
+  CONSTRAINT `Gateway_IP_fk`
+   FOREIGN KEY (`Gateway_IP`)
+   REFERENCES `mydb`.`Default_Gateway_Table` (`Gateway_IP_Address`))
+  CONSTRAINT `Device_Type_check`
+   CHECK (`Device_Type` in ('PC','DHCP','DNS','WEB','SERVER','ROUTER','SWITCH'))
+ENGINE = InnoDB;
+
+Insert into Device_Table(Device_ID,Device_Type,Device_Name,Gateway_IP) values(
+'D000000001','router','router-backbone','192.168.0.1');
+Insert into Device_Table(Device_ID,Device_Type,Device_Name,Gateway_IP) values(
+'D000000002','DNS','DC&DNS','192.168.0.1');
+Insert into Device_Table(Device_ID,Device_Type,Device_Name,Gateway_IP) values(
+'D000000003','WEB','WEB','192.168.0.1');
+Insert into Device_Table(Device_ID,Device_Type,Device_Name,Gateway_IP) values(
+'D000000004','DHCP','DHCP','192.168.0.1');
+
+------------------------------------------------------
+IP_MAC_Table
+
+CREATE TABLE IF NOT EXISTS `mydb`.`IP_MAC_Table` (
+  `IP_MAC_ID` VARCHAR(10) NOT NULL,
+  `IP_address` VARCHAR(16) NULL,
+  `MAC_address` VARCHAR(18) NULL,
+  `Device_ID` VARCHAR(10) NULL,
+  PRIMARY KEY (`IP_MAC_ID`),
+  CONSTRAINT `Device_ID_IP_MAC_TABLE_fk`
+    FOREIGN KEY (`Device_ID`)
+    REFERENCES `mydb`.`Device_Table` (`Device_ID`))
+ENGINE = InnoDB;
+
+Insert into IP_MAC_Table(IP_MAC_ID,IP_address,MAC_address,Device_ID) values(
+'IM00000001','192.168.0.1','9c:d6:43:cb:d5:b2','D000000001');
+Insert into IP_MAC_Table(IP_MAC_ID,IP_address,MAC_address,Device_ID) values(
+'IM00000002','10.20.9.195','00:0C:29:16:fc:00','D000000002');
+Insert into IP_MAC_Table(IP_MAC_ID,IP_address,MAC_address,Device_ID) values(
+'IM00000003','10.20.9.193','00:0C:29:72:dc:76','D000000003');
+Insert into IP_MAC_Table(IP_MAC_ID,IP_address,MAC_address,Device_ID) values(
+'IM00000004','10.20.9.191','00:0C:29:0e:d8:91','D000000004');
+
+------------------------------------------------------
+Log2MAC
+
+CREATE TABLE IF NOT EXISTS `mydb`.`Log2MAC` (
+  `IP_MAC_ID` VARCHAR(10) NOT NULL,
+  `MAC_address` VARCHAR(18) NOT NULL,
+  PRIMARY KEY (`MAC_address`),
+  CONSTRAINT `IP_MAC_ID_Log2MAC_fk`
+    FOREIGN KEY (`IP_MAC_ID`)
+    REFERENCES `mydb`.`IP_MAC_Table` (`IP_MAC_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+------------------------------------------------------
+Logs_Table
+
+CREATE TABLE IF NOT EXISTS `mydb`.`Logs_Table` (
+  `Logs_ID` VARCHAR(19) NOT NULL,
+  `DateTime` DATETIME NULL,
+  `Source_IP` VARCHAR(16) NULL,
+  `Destination_IP` VARCHAR(16) NULL,
+  `Source_MAC` VARCHAR(18) NULL,
+  `Destination_MAC` VARCHAR(18) NULL,
+  `Protocol` VARCHAR(15) NULL,
+  `Data` VARCHAR(500) NULL,
+  PRIMARY KEY (`Logs_ID`))
+ENGINE = InnoDB;
+
+------------------------------------------------------
+Report2MAC
+
+CREATE TABLE IF NOT EXISTS `mydb`.`Report2MAC` (
+  `IP_MAC_ID` VARCHAR(10) NOT NULL,
+  `MAC_address` VARCHAR(18) NOT NULL,
+  PRIMARY KEY (`MAC_address`),
+  CONSTRAINT `IP_MAC_ID_Report2MAC_fk`
+    FOREIGN KEY (`IP_MAC_ID`)
+    REFERENCES `mydb`.`IP_MAC_Table` (`IP_MAC_ID`)
+    )
+ENGINE = InnoDB;
+
+------------------------------------------------------
+Report_Table
+
+CREATE TABLE IF NOT EXISTS `mydb`.`Report_Table` (
+  `Report_ID` VARCHAR(19) NOT NULL,
+  `DateTime` DATETIME NULL,
+  `Source_IP` VARCHAR(16) NULL,
+  `Destination_IP` VARCHAR(16) NULL,
+  `Source_MAC` VARCHAR(18) NULL,
+  `Destination_MAC` VARCHAR(18) NULL,
+  `Protocol` VARCHAR(15) NULL,
+  `Data` VARCHAR(500) NULL,
+  PRIMARY KEY (`Report_ID`))
+ENGINE = InnoDB;
+
+------------------------------------------------------
+
+
+******************************************************
+CREATE TABLE IF NOT EXISTS `mydb`.`Device_Table` (
+  `Device_ID` VARCHAR(10) NOT NULL,
+  `Device_Type` VARCHAR(20) NULL,
+  `Device_Name` VARCHAR(60) NULL,
+  `Gateway_ID` VARCHAR(5) NULL,
+  PRIMARY KEY (`Device_ID`),
+  CONSTRAINT `Gateway_ID_fk`
+    FOREIGN KEY (`Gateway_ID`)
+    REFERENCES `mydb`.`Default_Gateway_Table` (`Gateway_ID`)
+    )
+ENGINE = InnoDB
+
+CREATE TABLE IF NOT EXISTS `mydb`.`Default_Gateway_Table` (
+  `Gateway_ID` VARCHAR(5) NOT NULL,
+  `Gateway_IP_Address` VARCHAR(16) NULL,
+  `Gateway_MAC_Address` VARCHAR(18) NULL,
+  PRIMARY KEY (`Gateway_ID`))
+ENGINE = InnoDB
+
+
+
+
+
+
+
+
+
+
+

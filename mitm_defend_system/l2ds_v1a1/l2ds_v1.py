@@ -4,12 +4,11 @@ from scapy.all import *
 import MySQLdb
 import numpy as np
 from threading import Thread
+import livegraph
 
 packets = []
-
 gateway = []
 arpcountperip = np.empty((24, 2), dtype=object)
-
 arpcount = 0
 totalarp = 0
 icmpcount = 0
@@ -33,7 +32,7 @@ def arp_detection(pkt, dmac, smac, dstip, hwsrc, srcip, hwdst):
 
 
 def get_packet_type(pkt):
-    global count
+    global count, y
     global arpcount, dhcpcount, icmpcount
     # tcheck use for new thread -> detection
 
@@ -112,8 +111,8 @@ def sniffing():
         global arpcount, icmpcount, dhcpcount
         arpcount = icmpcount = 0
 
-        sniff(iface="eth0", prn=get_packet_type, count=0, timeout=1)
-        #sniff(iface="wlan1", prn = get_packet_type,count= 0,timeout = 1)
+        #sniff(iface="eth0", prn=get_packet_type, count=0, timeout=1)
+        sniff(iface="wlan0", prn = get_packet_type,count= 0,timeout = 1)
 
         totalarp += arpcount
         totalicmp += icmpcount
@@ -168,11 +167,9 @@ def main():
 
     thd0 = Thread(target=sniffing)
     thd1 = Thread(target=spsniffing)
-
     thd1.daemon = True
 
     thd0.start()
     thd1.start()
-
 
 main()

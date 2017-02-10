@@ -1,8 +1,8 @@
 							Final Year Project
-						Layer 2 Defense System v1
+						Layer 2 Prevention System
 	
 	This program is a python program using cisco's SPAN function to
-	defend some local network attacks such as ARP spoofing, ICMP redirection
+	defend some local network attacks such as ARP spoofing, ICMP redirection...
 	
 	Also, it use scapy module for packet analysis.
 	GUI use pyQt4 to build.
@@ -10,30 +10,56 @@
 	
 	------------------------------------------------------------------------
 	Stage:
-
+		##############################################################
 		Core:
-			1. Get Packets From Interface 				[Yes]
-			2. Packet Filtering							[Yes]
-			3. Connect to DataBase						[Yes]
-			4. Mutithread Control 						[NO]
-		
+			1. Get Packets From Interface 					[Yes]
+			2. Packet Filtering								[Yes]
+			3. Connect to DataBase
+				a. DataBase Structure			[Yes]
+				b. Recording (Logs)				[Yes]
+			4. Multiprocessing
+				a.	Process 1: Sniffer and packet filtering [Yes]
+					 I. SubProcess 1: Detector  [Yes]
+					II. SubProcess 2: Log	    [Yes]
+				b.	Process 2: Display function				[Yes]
+				c.  Process 3: Stop Signal creater			[Yes]
+			5. Connect to Router and Switch
+				a. ssh										[Yes]
+			6. Prevention									[Test]
+			7. Report & Log HTML							[Yes]
+			
+		##############################################################
 		Detection Functions:
-			1. ARP Frame Checking 						[Yes]
-			2. ARP frequency 							[NO]
-			3. ICMP Frame Checking						[NO]
-			...Still need to add...
-		
+			a. MITM
+				1. ARP Frame Checking 						[Yes]
+				2. ARP frequency 							[Yes]
+				3. ICMP Frame Checking						[Yes]
+				4. ICMP Frame frequency						[Yes]
+				5. DHCP Checking							[Test]
+				6. DHCP frequency							[Yes]
+				7. DNS checking								[Test]
+				8. DNS frequency							[Yes]
+			b. Network Scan
+				1. 	TCP SYN scan								[YES]
+				2. 	TCP connect scan							[YES]
+				3. 	UDP scan									[YES]
+				4. 	Ping scan									[arp frequency + icmp frequency above]
+				5. 	Version detection scan						[YES]
+				6. 	TCP ACK scan								[YES]
+				7. 	TCP Xmas Tree scan							[YES]
+				8. 	TCP Maimon scan								[YES]
+				9. 	TCP FIN scan								[YES]
+		##############################################################
 		GUI											
-			1. Design									[NO]
-			2. Mergo with core							[NO]
+			1. Design										[Yes]
+			2. Mergo with core								[YES]
 			Track:
-				a. Draw graph							[NO]
+				a. Draw graph								[Yes]
 					a1. line graph						[YES]
-					a2. bar graph						[NO]
-				b. Mergo with GUI						[NO]
-			...Still need to add...
+					a2. bar graph						[YES]
+				b. Mergo with GUI							[YES]
 			
 	------------------------------------------------------------------------
 	Newest Version:
 			Files:
-				l2ds_v1.py
+				GUI folder

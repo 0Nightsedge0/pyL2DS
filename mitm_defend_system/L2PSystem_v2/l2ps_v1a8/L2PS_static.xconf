@@ -1,0 +1,18 @@
+# All global settings are here. They are applied to main core program
+#
+# e.g. XXXX = XXXX
+
+# Please note that these names can 'NOT' be removed or change
+# ^^^^^^ That will damage the system
+
+optime = 1
+max_optime = 10
+min_optime = 1
+
+frequency_baseline = 20
+max_freq = 30
+min_freq = 5
+
+tcp_port_knock_limit = 300
+udp_port_knock_limit = 300
+
