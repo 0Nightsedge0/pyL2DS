@@ -1,0 +1,26 @@
+cd C:\Users\teacher\Desktop 
+pyuic4 switchpage.ui -o switchpage.py
+
+
+
+
+import sys
+import os
+from PyQt4 import QtCore, QtGui, QtDesigner
+from PyQt4.QtCore import *
+from PyQt4.QtGui import *
+
+
+def __init__(self):
+        QtGui.QWidget.__init__(self)
+        self.setupUi(self)
+
+
+
+def main():
+    app = QApplication(sys.argv)
+    w = Ui_MainWindow()
+    w.show()
+    sys.exit(app.exec_())
+
+main()
