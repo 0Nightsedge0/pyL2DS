@@ -1,65 +1,46 @@
-							Final Year Project
-						Layer 2 Prevention System
-	
-	This program is a python program using cisco's SPAN function to
-	defend some local network attacks such as ARP spoofing, ICMP redirection...
-	
-	Also, it use scapy module for packet analysis.
-	GUI use pyQt4 to build.
-	Graph module to draw graph such as line graph, bar graph.
-	
-	------------------------------------------------------------------------
-	Stage:
-		##############################################################
-		Core:
-			1. Get Packets From Interface 					[Yes]
-			2. Packet Filtering								[Yes]
-			3. Connect to DataBase
-				a. DataBase Structure			[Yes]
-				b. Recording (Logs)				[Yes]
-			4. Multiprocessing
-				a.	Process 1: Sniffer and packet filtering [Yes]
-					 I. SubProcess 1: Detector  [Yes]
-					II. SubProcess 2: Log	    [Yes]
-				b.	Process 2: Display function				[Yes]
-				c.  Process 3: Stop Signal creater			[Yes]
-			5. Connect to Router and Switch
-				a. ssh										[Yes]
-			6. Prevention									[Test]
-			7. Report & Log HTML							[Yes]
-			
-		##############################################################
-		Detection Functions:
-			a. MITM
-				1. ARP Frame Checking 						[Yes]
-				2. ARP frequency 							[Yes]
-				3. ICMP Frame Checking						[Yes]
-				4. ICMP Frame frequency						[Yes]
-				5. DHCP Checking							[Test]
-				6. DHCP frequency							[Yes]
-				7. DNS checking								[Test]
-				8. DNS frequency							[Yes]
-			b. Network Scan
-				1. 	TCP SYN scan								[YES]
-				2. 	TCP connect scan							[YES]
-				3. 	UDP scan									[YES]
-				4. 	Ping scan									[arp frequency + icmp frequency above]
-				5. 	Version detection scan						[YES]
-				6. 	TCP ACK scan								[YES]
-				7. 	TCP Xmas Tree scan							[YES]
-				8. 	TCP Maimon scan								[YES]
-				9. 	TCP FIN scan								[YES]
-		##############################################################
-		GUI											
-			1. Design										[Yes]
-			2. Mergo with core								[YES]
-			Track:
-				a. Draw graph								[Yes]
-					a1. line graph						[YES]
-					a2. bar graph						[YES]
-				b. Mergo with GUI							[YES]
-			
-	------------------------------------------------------------------------
-	Newest Version:
-			Files:
-				GUI folder
+## My HD team FYP project
+### Layer 2 Prevention System
+
+## Core
+1. Get Packets From Interface
+2. Packet Filtering
+3. Connect to DataBase
+	+ DataBase Structure
+	+ Recording (Logs)
+4. Multiprocessing
+	+ Process 1: Sniffer and packet filtering
+		+ SubProcess 1: Detector
+		+ SubProcess 2: Log
+	+ Process 2: Display function
+	+ Process 3: Stop Signal creater
+5. Connect to Router and Switch
+	+ ssh
+6. Prevention
+7. Report & Log HTML
+
+## Detection Functions
+###  MITM
+1. ARP Frame Checking
+2. ARP frequency
+3. ICMP Frame Checking
+4. ICMP Frame frequency
+5. DHCP Checking
+6. DHCP frequency
+7. DNS checking
+8. DNS frequency
+
+### Network Scan
+1. TCP SYN scan
+2. TCP connect scan
+3. UDP scan
+4. Ping scan [arp frequency + icmp frequency above]
+5. Version detection scan
+6. TCP ACK scan
+7. TCP Xmas Tree scan
+8. TCP Maimon scan
+9. TCP FIN scan
+
+## GUI
+1. Design
+2. Mergo with core
+3. Graph
