@@ -1,6 +1,12 @@
 ## My HD team FYP project
 ### Layer 2 Prevention System
 
+This program is a python program using cisco's SPAN (port mirroring) function to detect/defend some local network attacks such as ARP spoofing, ICMP redirection...
+
+Used python library:
+- scapy for packet analysis.
+- pyQt4 for GUI
+
 ## Core
 1. Get Packets From Interface
 2. Packet Filtering
